@@ -1,5 +1,7 @@
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
+using ianco99.ToolBox.TaskScheduler;
+using ianco99.ToolBox.Updateable;
 
 namespace ZooArchitect.Architecture
 {
@@ -11,6 +13,7 @@ namespace ZooArchitect.Architecture
         public Gameplay()
         {
             ServiceProvider.Instance.AddService<EventBus>(new EventBus());
+            ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
         }
 
 
