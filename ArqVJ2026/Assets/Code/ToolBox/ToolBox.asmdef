@@ -1,9 +1,7 @@
 {
-    "name": "ArchitectureAssembly",
+    "name": "ToolBox",
     "rootNamespace": "",
-    "references": [
-        "GUID:f54857ab46abb3940ae8b0c9da2b2e6a"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

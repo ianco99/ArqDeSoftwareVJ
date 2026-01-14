@@ -1,21 +1,26 @@
-using Architecture.Updateable;
+using ianco99.ToolBox.Events;
+using ianco99.ToolBox.Services;
 
-namespace Architecture
+namespace ZooArchitect.Architecture
 {
     public sealed class Gameplay : IUpdateable
     {
-        private float data;
-        public float Data => data;
+
+        EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
 
         public Gameplay()
         {
-            this.data = 0;
+            ServiceProvider.Instance.AddService<EventBus>(new EventBus());
         }
 
 
         public void Update(float deltaTime)
         {
-            data += deltaTime;
+        }
+
+        public void Init()
+        {
+            EventBus.Raise<GameInitializedEvent>("sasa");
         }
     }
 }

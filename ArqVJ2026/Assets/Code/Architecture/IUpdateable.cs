@@ -1,4 +1,4 @@
-﻿namespace Architecture.Updateable
+﻿namespace ZooArchitect.Architecture
 {
     public interface IUpdateable
     {
