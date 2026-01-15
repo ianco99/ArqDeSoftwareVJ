@@ -1,6 +1,6 @@
 namespace ZooArchitect.Architecture
 {
-	internal static class Console
+    internal static class Console
 	{
 		public static void Log (string message)
         {
