@@ -1,6 +1,6 @@
 ﻿using ianco99.ToolBox.Events;
 
-namespace ZooArchitect.Architecture
+namespace ZooArchitect.Architecture.Logs.Events
 {
     public struct ConsoleLogWarningEvent : IEvent
     {

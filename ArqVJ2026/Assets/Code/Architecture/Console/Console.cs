@@ -1,20 +1,26 @@
-namespace ZooArchitect.Architecture
+using ianco99.ToolBox.Events;
+using ianco99.ToolBox.Services;
+using ZooArchitect.Architecture.Logs.Events;
+
+namespace ZooArchitect.Architecture.Logs
 {
     internal static class Console
-	{
-		public static void Log (string message)
-        {
+    {
+        private static EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
 
+        public static void Log(string message)
+        {
+            EventBus.Raise<ConsoleLogEvent>(message);
         }
 
-		public static void Warning(string message)
-		{
-
-		}
-
-		public static void Error(string message)
+        public static void Warning(string message)
         {
-
+            EventBus.Raise<ConsoleLogWarningEvent>(message);
         }
-	}
+
+        public static void Error(string message)
+        {
+            EventBus.Raise<ConsoleLogErrorEvent>(message);
+        }
+    }
 }

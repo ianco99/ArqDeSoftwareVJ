@@ -4,5 +4,6 @@ namespace ianco99.ToolBox.Events
 {
     public interface IEvent : IResetteable
     {
+
     }
 }

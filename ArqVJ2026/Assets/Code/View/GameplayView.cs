@@ -1,41 +1,45 @@
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
-using System.Threading.Tasks;
 using UnityEngine;
 using ZooArchitect.Architecture;
+using ZooArchitect.Architecture.GameLogic;
+using ZooArchitect.View.Logs;
 
 namespace ZooArchitect.View
 {
     public sealed class GameplayView : MonoBehaviour
     {
         public EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
-        public ianco99.ToolBox.TaskScheduler.TaskScheduler TaskScheduler => ServiceProvider.Instance.GetService<ianco99.ToolBox.TaskScheduler.TaskScheduler>();
+        public TaskScheduler TaskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
 
         private Gameplay gameplay;
+        private ConsoleView consoleView;
 
         void Start()
         {
             gameplay = new Gameplay();
-            TaskScheduler.Schedule(DoSomething, 3.0f);
-            EventBus.Subscribe<GameInitializedEvent>(OnGameInitialized);
-            gameplay.Init();
-        }
+            consoleView = new ConsoleView();
 
-        private void DoSomething()
-        {
-            ParallelOptions sasa = new ParallelOptions();
-            Debug.Log("SASOMETRO : " +  sasa.TaskScheduler.MaximumConcurrencyLevel);
+            EventBus.Subscribe<DayStepChangeEvent>(OnGameInitialized);
         }
 
         void Update()
         {
-            gameplay.Update(Time.deltaTime);
-            TaskScheduler.Update(Time.deltaTime);
+            gameplay.Update(UnityEngine.Time.deltaTime);
         }
-        private void OnGameInitialized(GameInitializedEvent gameInitializedEvent)
+
+        private void OnDisable()
         {
-            Debug.Log("Game initialized " + gameInitializedEvent.name);
+            consoleView.Dispose();
+
+            EventBus.UnSubscribe<DayStepChangeEvent>(OnGameInitialized);
+
+        }
+
+        private void OnGameInitialized(DayStepChangeEvent gameInitializedEvent)
+        {
+            Debug.Log("CHANGED STEP");
 
         }
     }
