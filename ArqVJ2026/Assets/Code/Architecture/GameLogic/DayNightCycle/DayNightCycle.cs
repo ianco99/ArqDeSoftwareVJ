@@ -40,7 +40,7 @@ namespace ZooArchitect.Architecture.GameLogic
         private void ChangeStep()
         {
             currentStep += (currentStep + 1) % daySteps.Count;
-            taskScheduler.Schedule(ChangeStep, DAY_STEP_DURATION);
+            taskScheduler.Schedule(ChangeStep, DAY_STEP_DURATION * HOUR_DURATION);
             eventBus.Raise<DayStepChangeEvent>();
         }
     }

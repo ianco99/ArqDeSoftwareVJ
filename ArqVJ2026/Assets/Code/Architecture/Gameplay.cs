@@ -22,7 +22,7 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
             ServiceProvider.Instance.AddService<Time>(new Time());
             ServiceProvider.Instance.AddService<DayNightCycle>(new DayNightCycle());
-
+            ServiceProvider.Instance.AddService<Wallet>(new Wallet());
         }
 
 
