@@ -7,12 +7,14 @@ namespace ianco99.ToolBox.Events
 {
     public sealed class EventBus : IService
     {
+        public delegate void EventCallback<EventType>(in EventType callback) where EventType : struct, IEvent;
+
         private readonly Dictionary<Type, List<Delegate>> subscribers = new Dictionary<Type, List<Delegate>>();
 
         private readonly ConcurrentPool eventPool = new ConcurrentPool();
         public bool IsPersistance => false;
 
-        public void Subscribe<EventType>(Action<EventType> callback) where EventType : struct, IEvent
+        public void Subscribe<EventType>(EventCallback<EventType> callback) where EventType : struct, IEvent
         {
             Type eventType = typeof(EventType);
 
@@ -24,7 +26,7 @@ namespace ianco99.ToolBox.Events
             subscribers[eventType].Add(callback);
         }
 
-        public void UnSubscribe<EventType>(Action<EventType> callback) where EventType : struct, IEvent
+        public void UnSubscribe<EventType>(EventCallback<EventType> callback) where EventType : struct, IEvent
         {
             Type eventType = typeof(EventType);
 

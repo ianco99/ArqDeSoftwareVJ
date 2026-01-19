@@ -23,17 +23,17 @@ namespace ZooArchitect.View.Logs
             EventBus.UnSubscribe<ConsoleLogErrorEvent>(LogError);
         }
 
-        private void LogMessage(ConsoleLogEvent consoleLogEvent)
+        private void LogMessage(in ConsoleLogEvent consoleLogEvent)
         {
             UnityEngine.Debug.Log(consoleLogEvent.message);
         }
 
-        private void LogWarning(ConsoleLogWarningEvent consoleLogEvent)
+        private void LogWarning(in ConsoleLogWarningEvent consoleLogEvent)
         {
             UnityEngine.Debug.LogWarning(consoleLogEvent.message);
         }
 
-        private void LogError(ConsoleLogErrorEvent consoleLogEvent)
+        private void LogError(in ConsoleLogErrorEvent consoleLogEvent)
         {
             UnityEngine.Debug.LogError(consoleLogEvent.message);
         }
