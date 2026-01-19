@@ -1,0 +1,16 @@
+﻿namespace ZooArchitect.Architecture.Entities
+{
+    public abstract class Entity
+    {
+        public const uint UNASSIGNED_ENTITY_ID = 0;
+
+        public uint ID;
+        private Coordinate coordinate;
+
+        public Entity(uint ID, Coordinate coordinate)
+        {
+            this.ID = ID;
+            this.coordinate = coordinate;
+        }
+    }
+}
