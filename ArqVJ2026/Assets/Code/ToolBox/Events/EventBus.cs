@@ -44,7 +44,7 @@ namespace ianco99.ToolBox.Events
             {
                 foreach (Delegate callback in subscriptions)
                 {
-                    ((Action<EventType>)callback)?.Invoke(raisingEvent);
+                    ((EventCallback<EventType>)callback)?.Invoke(raisingEvent);
                 }
             }
             eventPool.Release(raisingEvent);

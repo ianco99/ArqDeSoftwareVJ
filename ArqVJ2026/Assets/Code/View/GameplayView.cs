@@ -22,6 +22,8 @@ namespace ZooArchitect.View
             consoleView = new ConsoleView();
 
             EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
+
+            gameplay.Init();
         }
 
         void Update()
@@ -37,7 +39,7 @@ namespace ZooArchitect.View
 
         }
 
-        private void OnStepChanged(DayStepChangeEvent gameInitializedEvent)
+        private void OnStepChanged(in DayStepChangeEvent gameInitializedEvent)
         {
             Debug.Log("CHANGED STEP");
 

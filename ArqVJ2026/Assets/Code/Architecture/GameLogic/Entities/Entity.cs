@@ -1,4 +1,6 @@
-﻿namespace ZooArchitect.Architecture.Entities
+﻿using ZooArchitect.Architecture.Math;
+
+namespace ZooArchitect.Architecture.Entities
 {
     public abstract class Entity
     {
@@ -7,7 +9,7 @@
         public uint ID;
         private Coordinate coordinate;
 
-        public Entity(uint ID, Coordinate coordinate)
+        protected Entity(uint ID, Coordinate coordinate)
         {
             this.ID = ID;
             this.coordinate = coordinate;

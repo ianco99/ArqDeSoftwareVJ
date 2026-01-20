@@ -1,5 +1,4 @@
 ﻿using ianco99.ToolBox.Services;
-using System;
 using System.Collections.Generic;
 
 namespace ZooArchitect.Architecture.GameLogic
@@ -43,7 +42,7 @@ namespace ZooArchitect.Architecture.GameLogic
             this.minValue = minValue;
             this.maxValue = maxValue;
             this.startValue = startValue;
-            this.currentValue = Math.Clamp(startValue, minValue, maxValue);
+            this.currentValue = System.Math.Clamp(startValue, minValue, maxValue);
         }
 
         public string Name => name;
@@ -51,17 +50,17 @@ namespace ZooArchitect.Architecture.GameLogic
 
         public void AddResource(long amount)
         {
-            currentValue = Math.Clamp(CurrentValue + amount, minValue, maxValue);
+            currentValue = System.Math.Clamp(CurrentValue + amount, minValue, maxValue);
         }
 
         public void RemoveResource(long amount)
         {
-            currentValue = Math.Clamp(CurrentValue - amount, minValue, maxValue);
+            currentValue = System.Math.Clamp(CurrentValue - amount, minValue, maxValue);
         }
 
         public void SetResourceAmount(long amount)
         {
-            currentValue = Math.Clamp(amount, minValue, maxValue);
+            currentValue = System.Math.Clamp(amount, minValue, maxValue);
         }
     }
 }

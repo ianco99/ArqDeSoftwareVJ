@@ -2,8 +2,10 @@ using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
 using ianco99.ToolBox.Updateable;
+using ZooArchitect.Architecture.Entities;
+using ZooArchitect.Architecture.Entities.Events;
 using ZooArchitect.Architecture.GameLogic;
-using ZooArchitect.Architecture.Logs;
+using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture
 {
@@ -13,7 +15,6 @@ namespace ZooArchitect.Architecture
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private TaskScheduler TaskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
         private Time time => ServiceProvider.Instance.GetService<Time>();
-        private DayNightCycle dayNightCycle => ServiceProvider.Instance.GetService<DayNightCycle>();
 
 
         public Gameplay()
@@ -23,8 +24,22 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<Time>(new Time());
             ServiceProvider.Instance.AddService<DayNightCycle>(new DayNightCycle());
             ServiceProvider.Instance.AddService<Wallet>(new Wallet());
+            ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
+            ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
+
+            EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
+            EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
         }
 
+        private void NewEntityCreated(in EntityCreatedEvent<Entity> callback)
+        {
+
+        }
+
+        private void NewAnimalCreated(in EntityCreatedEvent<Animal> callback)
+        {
+
+        }
 
         public void Update(float deltaTime)
         {
@@ -36,7 +51,8 @@ namespace ZooArchitect.Architecture
 
         public void Init()
         {
-            EventBus.Raise<GameInitializedEvent>("sasa");
+            ServiceProvider.Instance.GetService<EntityFactory>().CreateInstance<Animal>(new Coordinate(0, 0));
+            //EventBus.Raise<GameInitializedEvent>("sasa");
         }
     }
 }
