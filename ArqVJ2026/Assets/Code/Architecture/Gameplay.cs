@@ -1,3 +1,4 @@
+using ianco99.ToolBox.Blueprints;
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
@@ -17,9 +18,11 @@ namespace ZooArchitect.Architecture
         private Time time => ServiceProvider.Instance.GetService<Time>();
 
 
-        public Gameplay()
+        public Gameplay(string blueprintsPath)
         {
             ServiceProvider.Instance.AddService<EventBus>(new EventBus());
+            ServiceProvider.Instance.AddService<BlueprintRegistry>(new BlueprintRegistry(blueprintsPath));
+            ServiceProvider.Instance.AddService<BlueprintBinder>(new BlueprintBinder());
             ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
             ServiceProvider.Instance.AddService<Time>(new Time());
             ServiceProvider.Instance.AddService<DayNightCycle>(new DayNightCycle());

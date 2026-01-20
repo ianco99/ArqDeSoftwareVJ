@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using ianco99.ToolBox.Events;
 using ZooArchitect.Architecture.Entities.Events;
+using ianco99.ToolBox.Blueprints;
 
 namespace ZooArchitect.Architecture.Entities
 {
@@ -12,6 +13,7 @@ namespace ZooArchitect.Architecture.Entities
     {
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
+        private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
         private uint lastAssignedEntityId;
         public bool IsPersistance => false;
 
@@ -47,7 +49,9 @@ namespace ZooArchitect.Architecture.Entities
                 throw new MissingMethodException($"Missing constructor for {typeof(EntityType).Name}");
             }
 
-            EntityType newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate }) as EntityType;
+            object newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate });
+
+            BlueprintBinder.Apply(ref newEntity, "Animals", "Monkey");
 
             if (RegisterEntityMethod == null)
             {

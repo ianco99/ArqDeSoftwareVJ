@@ -1,6 +1,7 @@
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
+using System.IO;
 using UnityEngine;
 using ZooArchitect.Architecture;
 using ZooArchitect.Architecture.GameLogic;
@@ -13,12 +14,14 @@ namespace ZooArchitect.View
         public EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         public TaskScheduler TaskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
 
+        private string BlueprintsPath => Path.Combine(Application.streamingAssetsPath, "Blueprints", "Blueprints.xlsx");
+
         private Gameplay gameplay;
         private ConsoleView consoleView;
 
         void Start()
         {
-            gameplay = new Gameplay();
+            gameplay = new Gameplay(BlueprintsPath);
             consoleView = new ConsoleView();
 
             EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
@@ -42,7 +45,7 @@ namespace ZooArchitect.View
         private void OnStepChanged(in DayStepChangeEvent gameInitializedEvent)
         {
             Debug.Log("CHANGED STEP");
-
+            
         }
     }
 }
