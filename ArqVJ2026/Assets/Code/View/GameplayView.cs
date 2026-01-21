@@ -31,7 +31,7 @@ namespace ZooArchitect.View
 
         void Update()
         {
-            gameplay.Update(UnityEngine.Time.deltaTime);
+            //gameplay.Update(UnityEngine.Time.deltaTime);
         }
 
         private void OnDisable()

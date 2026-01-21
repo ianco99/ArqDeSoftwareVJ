@@ -5,14 +5,14 @@ namespace ianco99.ToolBox.Blueprints
 {
     internal sealed class BlueprintData
     {
-        internal string this[string blueprintID, string parameter] => rawContent[blueprintIDs.IndexOf(blueprintID) + 1, parameters.IndexOf(parameter) + 1];
+        private const int OFFSET = 1;
+        internal string this[string blueprintID, string parameter] =>
+            rawContent[bluprintIDs.IndexOf(blueprintID) + OFFSET, parameter.IndexOf(parameter) + OFFSET];
 
         private readonly string[,] rawContent;
-        private readonly List<string> blueprintIDs;
+        private readonly List<string> bluprintIDs;
         private readonly List<string> parameters;
-
-        internal List<string> BlueprintIDs => blueprintIDs;
-
+        internal List<string> BlueprintIDs => bluprintIDs;
         internal List<string> Parameters => parameters;
 
         public BlueprintData(ISheet sheet)
@@ -23,7 +23,6 @@ namespace ianco99.ToolBox.Blueprints
             for (int row = sheet.FirstRowNum; row < sheet.LastRowNum; row++)
             {
                 IRow sheetRow = sheet.GetRow(row);
-
                 if (sheetRow == null)
                     continue;
 
@@ -37,11 +36,11 @@ namespace ianco99.ToolBox.Blueprints
                     if (cell.CellType == CellType.Blank)
                         continue;
 
-                    if (row + 1 > maxRow)
-                        maxRow = row + 1;
+                    if (row + OFFSET > maxRow)
+                        maxRow = row + OFFSET;
 
-                    if (column + 1 > maxColumn)
-                        maxColumn = column + 1;
+                    if (column + OFFSET > maxColumn)
+                        maxColumn = column + OFFSET;
                 }
             }
 
@@ -49,9 +48,7 @@ namespace ianco99.ToolBox.Blueprints
 
             for (int row = 0; row < sheet.LastRowNum; row++)
             {
-
                 IRow sheetRow = sheet.GetRow(row);
-
                 if (sheetRow == null)
                     continue;
 
@@ -69,21 +66,18 @@ namespace ianco99.ToolBox.Blueprints
                 }
             }
 
-            blueprintIDs = new List<string>();
-
-            for (int i = 1; i < rawContent.GetLength(0); i++)
+            bluprintIDs = new List<string>();
+            for (int i = OFFSET; i < rawContent.GetLength(0); i++)
             {
-                blueprintIDs.Add(rawContent[i, 0]);
+                bluprintIDs.Add(rawContent[i, 0]);
             }
 
             parameters = new List<string>();
-
-            for (int i = 1; i < rawContent.GetLength(1); i++)
+            for (int i = OFFSET; i < rawContent.GetLength(1); i++)
             {
-                blueprintIDs.Add(rawContent[0, i]);
+                parameters.Add(rawContent[0, i]);
             }
         }
-
 
     }
 }

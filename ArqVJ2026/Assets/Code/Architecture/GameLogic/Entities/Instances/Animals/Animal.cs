@@ -10,7 +10,7 @@ namespace ZooArchitect.Architecture.Entities
 {
     public sealed class Animal : Entity
     {
-        [BlueprintParameter("Life")] int sasa;
+        [BlueprintParameter("Life")] int lifeField;
         protected Animal(uint ID, Coordinate coordinate) : base(ID, coordinate)
         {
 

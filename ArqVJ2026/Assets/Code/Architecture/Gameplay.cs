@@ -1,4 +1,5 @@
 using ianco99.ToolBox.Blueprints;
+using ianco99.ToolBox.Bluprints;
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
@@ -32,6 +33,8 @@ namespace ZooArchitect.Architecture
 
             EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
             EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
+
+
         }
 
         private void NewEntityCreated(in EntityCreatedEvent<Entity> callback)
@@ -54,7 +57,6 @@ namespace ZooArchitect.Architecture
 
         public void Init()
         {
-            ServiceProvider.Instance.GetService<EntityFactory>().CreateInstance<Animal>(new Coordinate(0, 0));
             //EventBus.Raise<GameInitializedEvent>("sasa");
         }
     }

@@ -10,15 +10,14 @@ namespace ianco99.ToolBox.Blueprints
     {
         public bool IsPersistance => true;
 
-        internal Dictionary<string, BlueprintData> BlueprintDatas => blueprintDatas;
 
         private readonly Dictionary<string, BlueprintData> blueprintDatas;
+        internal Dictionary<string, BlueprintData> BlueprintDatas => blueprintDatas;
 
-        public BlueprintRegistry(string blueprintPath)
+        public BlueprintRegistry(string bluprintPath)
         {
             blueprintDatas = new Dictionary<string, BlueprintData>();
-
-            using (FileStream file = new FileStream(blueprintPath, FileMode.Open, FileAccess.Read))
+            using (FileStream file = new FileStream(bluprintPath, FileMode.Open, FileAccess.Read))
             {
                 IWorkbook workbook = new XSSFWorkbook(file);
 
@@ -29,7 +28,7 @@ namespace ianco99.ToolBox.Blueprints
             }
         }
 
-        public List<string> BlueprintsOF(string blueprintTable) => BlueprintDatas[blueprintTable].BlueprintIDs;
-        public List<string> ParametersOf(string blueprintTable) => BlueprintDatas[blueprintTable].Parameters;
+        public List<string> BlueprintsOf(string blueprintTable) => blueprintDatas[blueprintTable].BlueprintIDs;
+        public List<string> ParametersOf(string blueprintTable) => blueprintDatas[blueprintTable].Parameters;
     }
 }
