@@ -31,7 +31,8 @@ namespace ZooArchitect.Architecture.GameLogic
         {
             currentStep = 0;
             daySteps = new List<DayStep>();
-
+            
+            //TODO: Consult Leandro
             foreach (var VARIABLE in blueprintRegistry.BlueprintsOf("DayNightCycle"))
             {
                 object obj = new DayStep();

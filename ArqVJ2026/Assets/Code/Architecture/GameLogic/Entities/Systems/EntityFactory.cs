@@ -36,6 +36,7 @@ namespace ZooArchitect.Architecture.Entities
 
             raiseEntityCreatedMethod = GetType().GetMethod(nameof(RaiseEntityCreated), BindingFlags.NonPublic | BindingFlags.Instance);
 
+            //TODO: Consult Leandro
             // RegisterEntityMethods<Animal>();
             // CreateInstance<Animal>(new Coordinate(0, 0));
         }
@@ -52,7 +53,8 @@ namespace ZooArchitect.Architecture.Entities
 
             object newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate });
 
-            BlueprintBinder.Apply(ref newEntity, "Animals", "Monkey");
+            //TODO: Consult Leandro
+            //BlueprintBinder.Apply(ref newEntity, "Animals", "Monkey");
 
             if (RegisterEntityMethod == null)
             {
