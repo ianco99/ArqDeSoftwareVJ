@@ -37,8 +37,8 @@ namespace ZooArchitect.Architecture.Entities
             raiseEntityCreatedMethod = GetType().GetMethod(nameof(RaiseEntityCreated), BindingFlags.NonPublic | BindingFlags.Instance);
 
             //TODO: Consult Leandro
-            // RegisterEntityMethods<Animal>();
-            // CreateInstance<Animal>(new Coordinate(0, 0));
+             RegisterEntityMethods<Animal>();
+             CreateInstance<Animal>(new Coordinate(new Point(0, 0)));
         }
 
         public void CreateInstance<EntityType>(Coordinate coordinate) where EntityType : Entity
