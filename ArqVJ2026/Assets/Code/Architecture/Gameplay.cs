@@ -31,6 +31,8 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
             ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
 
+            new Map();
+
             EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
             EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
 

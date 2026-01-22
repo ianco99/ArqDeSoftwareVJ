@@ -14,10 +14,10 @@ namespace ianco99.ToolBox.Blueprints
         private readonly Dictionary<string, BlueprintData> blueprintDatas;
         internal Dictionary<string, BlueprintData> BlueprintDatas => blueprintDatas;
 
-        public BlueprintRegistry(string bluprintPath)
+        public BlueprintRegistry(string blueprintPath)
         {
             blueprintDatas = new Dictionary<string, BlueprintData>();
-            using (FileStream file = new FileStream(bluprintPath, FileMode.Open, FileAccess.Read))
+            using (FileStream file = new FileStream(blueprintPath, FileMode.Open, FileAccess.Read))
             {
                 IWorkbook workbook = new XSSFWorkbook(file);
 
