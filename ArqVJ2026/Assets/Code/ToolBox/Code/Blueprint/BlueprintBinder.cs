@@ -14,12 +14,12 @@ namespace ianco99.ToolBox.Bluprints
         private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
 
         private Dictionary<Type, FieldInfo[]> fieldsInType;
-        private Dictionary<FieldInfo, (bool hasAttribute, BlueprintParameterAttribute attribute)> attributeInFields;
+        private Dictionary<FieldInfo, BlueprintParameterAttribute> attributeInFields;
 
         public BlueprintBinder()
         {
             fieldsInType = new Dictionary<Type, FieldInfo[]>();
-            attributeInFields = new Dictionary<FieldInfo, (bool hasAttribute, BlueprintParameterAttribute attribute)>();
+            attributeInFields = new Dictionary<FieldInfo, BlueprintParameterAttribute>();
         }
 
         public void Apply(ref object instance, string blueprintTable, string blueprintID)
@@ -30,34 +30,37 @@ namespace ianco99.ToolBox.Bluprints
             {
                 foreach (FieldInfo fieldInfo in GetFields(instanceType))
                 {
-                    (bool hasAttribute, BlueprintParameterAttribute attribute) blueprintParameter =
+                    BlueprintParameterAttribute blueprintParameter =
                         GetBlueprintParameterAttribute(fieldInfo);
 
-                    if (blueprintParameter.hasAttribute)
+                    if (blueprintParameter != null)
                     {
                         try
                         {
                             fieldInfo.SetValue(instance, StringCast.Convert(
-                            BlueprintRegistry.BlueprintDatas[blueprintTable]
-                            [blueprintID, blueprintParameter.attribute.ParameterHeader],
-                            fieldInfo.FieldType));
+                                BlueprintRegistry.BlueprintDatas[blueprintTable]
+                                    [blueprintID, blueprintParameter.ParameterHeader],
+                                fieldInfo.FieldType));
                         }
                         catch (InvalidCastException)
                         {
-                            throw new DataMisalignedException($"Invalid data entry. Tried inputting data {BlueprintRegistry.BlueprintDatas[blueprintTable][blueprintID, blueprintParameter.attribute.ParameterHeader]} from Blueprint into data type {fieldInfo.FieldType}");
+                            throw new DataMisalignedException(
+                                $"Invalid data entry. Tried inputting data {BlueprintRegistry.BlueprintDatas[blueprintTable][blueprintID, blueprintParameter.ParameterHeader]} from Blueprint into data type {fieldInfo.FieldType}");
                             throw;
                         }
                         catch (Exception)
                         {
                             throw new Exception();
                         }
-                        
+                    }
+                    else
+                    {
+                        throw new NullReferenceException($"No attribute of type {typeof(BlueprintParameterAttribute)} found for field {fieldInfo.Name} in blueprint table {blueprintTable}" );
                     }
                 }
+
                 instanceType = instanceType.BaseType;
-
             } while (instanceType != typeof(object));
-
         }
 
         private FieldInfo[] GetFields(Type type)
@@ -69,25 +72,48 @@ namespace ianco99.ToolBox.Bluprints
             return fieldsInType[type];
         }
 
-        private (bool hasAttribute, BlueprintParameterAttribute attribute)
-            GetBlueprintParameterAttribute(FieldInfo fieldInfo)
+        private BlueprintParameterAttribute[] GetAttributes(Type type)
         {
-            if (!attributeInFields.ContainsKey(fieldInfo))
+            if (!fieldsInType.ContainsKey(type))
+                fieldsInType.Add(type, type.GetFields(
+                    BindingFlags.Public | BindingFlags.NonPublic |
+                    BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            List<BlueprintParameterAttribute> attributeList = new();
+
+            foreach (FieldInfo fieldInfo in fieldsInType[type])
             {
-                bool contains = false;
                 foreach (Attribute attribute in fieldInfo.GetCustomAttributes())
                 {
                     if (attribute is BlueprintParameterAttribute)
                     {
-                        attributeInFields.Add(fieldInfo, (true, attribute as BlueprintParameterAttribute));
-                        contains = true;
+                        attributeList.Add(attribute as BlueprintParameterAttribute);
                         break;
                     }
                 }
-
-                if (!contains)
-                    attributeInFields.Add(fieldInfo, (false, null));
             }
+
+
+            return attributeList.ToArray();
+        }
+
+        private BlueprintParameterAttribute
+            GetBlueprintParameterAttribute(FieldInfo fieldInfo)
+        {
+            if (!attributeInFields.ContainsKey(fieldInfo))
+            {
+                foreach (Attribute attribute in fieldInfo.GetCustomAttributes())
+                {
+                    if (attribute is BlueprintParameterAttribute)
+                    {
+                        attributeInFields.Add(fieldInfo, attribute as BlueprintParameterAttribute);
+                        return attributeInFields[fieldInfo];
+                    }
+                }
+
+                return null;
+            }
+
             return attributeInFields[fieldInfo];
         }
     }

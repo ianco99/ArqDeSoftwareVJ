@@ -2,6 +2,8 @@
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
 using System.Collections.Generic;
+using ianco99.ToolBox.Blueprints;
+using ianco99.ToolBox.Bluprints;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
@@ -20,6 +22,8 @@ namespace ZooArchitect.Architecture.GameLogic
 
         private EventBus eventBus => ServiceProvider.Instance.GetService<EventBus>();
         private TaskScheduler taskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
+        private BlueprintBinder blueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
+        private BlueprintRegistry blueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
 
         public DayStep CurrentDayStep => daySteps[currentStep];
 
@@ -27,12 +31,14 @@ namespace ZooArchitect.Architecture.GameLogic
         {
             currentStep = 0;
             daySteps = new List<DayStep>();
-            daySteps.Add(new DayStep("Mañana", DAY_STEP_DURATION));
-            daySteps.Add(new DayStep("Mediodía", DAY_STEP_DURATION));
-            daySteps.Add(new DayStep("Tarde", DAY_STEP_DURATION));
-            daySteps.Add(new DayStep("Atardecer", DAY_STEP_DURATION));
-            daySteps.Add(new DayStep("Anochecer", DAY_STEP_DURATION));
-            daySteps.Add(new DayStep("Madrugada", DAY_STEP_DURATION));
+
+            foreach (var VARIABLE in blueprintRegistry.BlueprintsOf("DayNightCycle"))
+            {
+                object obj = new DayStep();
+                blueprintBinder.Apply( ref obj, "DayNightCycle", VARIABLE);
+
+                daySteps.Add(obj as DayStep);
+            }
 
             taskScheduler.Schedule(ChangeStep, DAY_STEP_DURATION * HOUR_DURATION);
         }
@@ -45,15 +51,14 @@ namespace ZooArchitect.Architecture.GameLogic
         }
     }
 
-    public struct DayStep
+    public sealed class DayStep
     {
-        public string name;
-        public float duration;
+        [BlueprintParameter("Name")] public string name;
+        [BlueprintParameter("Duration")] public float duration;
 
-        public DayStep(string name, float duration)
+        public DayStep()
         {
-            this.name = name;
-            this.duration = duration;
+       
         }
     }
 }
