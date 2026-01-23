@@ -37,20 +37,23 @@ namespace ianco99.ToolBox.Bluprints
                     {
                         try
                         {
-                            fieldInfo.SetValue(instance, StringCast.Convert(
+                            object castedValue = StringCast.Convert(
                                 BlueprintRegistry.BlueprintDatas[blueprintTable]
                                     [blueprintID, blueprintParameter.ParameterHeader],
-                                fieldInfo.FieldType));
+                                fieldInfo.FieldType);
+
+                            fieldInfo.SetValue(instance, castedValue);
                         }
                         catch (InvalidCastException)
                         {
+
                             throw new DataMisalignedException(
                                 $"Invalid data entry. Tried inputting data {BlueprintRegistry.BlueprintDatas[blueprintTable][blueprintID, blueprintParameter.ParameterHeader]} from Blueprint into data type {fieldInfo.FieldType}");
                             throw;
                         }
-                        catch (Exception)
+                        catch (Exception exception)
                         {
-                            throw new Exception();
+                            throw new Exception(exception.Message);
                         }
                     }
                     else

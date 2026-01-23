@@ -1,8 +1,10 @@
 ﻿using ianco99.ToolBox.Blueprints;
 using ianco99.ToolBox.Bluprints;
 using ianco99.ToolBox.Services;
+using System;
 using System.Collections.Generic;
 using ZooArchitect.Architecture.Data;
+using ZooArchitect.Architecture.Exceptions;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
@@ -29,7 +31,15 @@ namespace ZooArchitect.Architecture.GameLogic
             foreach (string tileTypeID in BlueprintRegistry.BlueprintsOf(TableNames.TILE_TYPES_TABLE_NAME))
             {
                 object tileData = new TileData();
-                BlueprintBinder.Apply(ref tileData, TableNames.TILE_TYPES_TABLE_NAME, tileTypeID);
+
+                try
+                {
+                    BlueprintBinder.Apply(ref tileData, TableNames.TILE_TYPES_TABLE_NAME, tileTypeID);
+                }
+                catch (DataMisalignedException exception )
+                {
+                    throw new DataEntryException($"Falied to read {TableNames.TILE_TYPES_TABLE_NAME} - {tileTypeID} ({exception.Message})");
+                }
 
                 tileDatas.Add(tileTypeID.GetHashCode(), (TileData)tileData);
                 tileHashToName.Add(tileTypeID.GetHashCode(), tileTypeID);
@@ -50,7 +60,7 @@ namespace ZooArchitect.Architecture.GameLogic
 
             if (defaultDataHash == 0)
             {
-                throw new System.Exception();
+                throw new BrokenGameRuleException("Missing default tile definition in Blueprints.xlsx");
             }
 
             for (int x = 0; x < sizeX; x++)

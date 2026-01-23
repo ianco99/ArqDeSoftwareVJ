@@ -55,7 +55,7 @@ namespace ianco99.ToolBox.Cast
             }
             catch (Exception)
             {
-                throw new InvalidCastException();
+                throw new InvalidCastException($"Failed to convert {value} into {targetType.Name}");
             }
         }
 

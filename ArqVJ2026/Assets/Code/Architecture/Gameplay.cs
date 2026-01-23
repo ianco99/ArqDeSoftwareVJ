@@ -7,7 +7,6 @@ using ianco99.ToolBox.Updateable;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.Entities.Events;
 using ZooArchitect.Architecture.GameLogic;
-using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture
 {
@@ -31,7 +30,8 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
             ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
 
-            new Map();
+            new Map(10, 11);
+
 
             EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
             EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
@@ -54,7 +54,7 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.GetService<Time>();
             time.Update(deltaTime);
             TaskScheduler.Update(time.LogicDeltaTime);
-            
+
         }
 
         public void Init()

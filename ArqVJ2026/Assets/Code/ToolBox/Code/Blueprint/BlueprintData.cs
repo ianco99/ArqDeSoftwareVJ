@@ -7,12 +7,12 @@ namespace ianco99.ToolBox.Blueprints
     {
         private const int OFFSET = 1;
         internal string this[string blueprintID, string parameter] =>
-            rawContent[bluprintIDs.IndexOf(blueprintID) + OFFSET, parameters.IndexOf(parameter) + OFFSET];
+            rawContent[blueprintIDs.IndexOf(blueprintID) + OFFSET, parameters.IndexOf(parameter) + OFFSET];
 
         private readonly string[,] rawContent;
-        private readonly List<string> bluprintIDs;
+        private readonly List<string> blueprintIDs;
         private readonly List<string> parameters;
-        internal List<string> BlueprintIDs => bluprintIDs;
+        internal List<string> BlueprintIDs => blueprintIDs;
         internal List<string> Parameters => parameters;
 
         public BlueprintData(ISheet sheet)
@@ -20,7 +20,7 @@ namespace ianco99.ToolBox.Blueprints
             int maxRow = 0;
             int maxColumn = 0;
 
-            for (int row = sheet.FirstRowNum; row <= sheet.LastRowNum; row++)
+            for (int row = sheet.FirstRowNum; row < sheet.LastRowNum; row++)
             {
                 IRow sheetRow = sheet.GetRow(row);
                 if (sheetRow == null)
@@ -46,7 +46,7 @@ namespace ianco99.ToolBox.Blueprints
 
             rawContent = new string[maxRow, maxColumn];
 
-            for (int row = sheet.FirstRowNum; row <= sheet.LastRowNum; row++)
+            for (int row = 0; row < sheet.LastRowNum; row++)
             {
                 IRow sheetRow = sheet.GetRow(row);
                 if (sheetRow == null)
@@ -66,10 +66,10 @@ namespace ianco99.ToolBox.Blueprints
                 }
             }
 
-            bluprintIDs = new List<string>();
+            blueprintIDs = new List<string>();
             for (int i = OFFSET; i < rawContent.GetLength(0); i++)
             {
-                bluprintIDs.Add(rawContent[i, 0]);
+                blueprintIDs.Add(rawContent[i, 0]);
             }
 
             parameters = new List<string>();
