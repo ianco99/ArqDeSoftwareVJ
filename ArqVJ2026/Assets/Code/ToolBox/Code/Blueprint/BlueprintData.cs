@@ -6,7 +6,7 @@ namespace ianco99.ToolBox.Blueprints
     internal sealed class BlueprintData
     {
         private const int OFFSET = 1;
-        internal string this[string blueprintID, string parameter] =>
+        internal string this[string blueprintID, string parameter] => 
             rawContent[blueprintIDs.IndexOf(blueprintID) + OFFSET, parameters.IndexOf(parameter) + OFFSET];
 
         private readonly string[,] rawContent;
@@ -20,7 +20,7 @@ namespace ianco99.ToolBox.Blueprints
             int maxRow = 0;
             int maxColumn = 0;
 
-            for (int row = sheet.FirstRowNum; row < sheet.LastRowNum; row++)
+            for (int row = sheet.FirstRowNum; row <= sheet.LastRowNum; row++)
             {
                 IRow sheetRow = sheet.GetRow(row);
                 if (sheetRow == null)
@@ -46,7 +46,7 @@ namespace ianco99.ToolBox.Blueprints
 
             rawContent = new string[maxRow, maxColumn];
 
-            for (int row = 0; row < sheet.LastRowNum; row++)
+            for (int row = sheet.FirstRowNum; row <= sheet.LastRowNum; row++)
             {
                 IRow sheetRow = sheet.GetRow(row);
                 if (sheetRow == null)

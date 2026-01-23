@@ -35,18 +35,17 @@ namespace ianco99.ToolBox.Bluprints
 
                     if (blueprintParameter != null)
                     {
+                        object castedValue;
                         try
                         {
-                            object castedValue = StringCast.Convert(
+                            castedValue = StringCast.Convert(
                                 BlueprintRegistry.BlueprintDatas[blueprintTable]
                                     [blueprintID, blueprintParameter.ParameterHeader],
                                 fieldInfo.FieldType);
-
-                            fieldInfo.SetValue(instance, castedValue);
                         }
                         catch (InvalidCastException)
                         {
-
+                            ;
                             throw new DataMisalignedException(
                                 $"Invalid data entry. Tried inputting data {BlueprintRegistry.BlueprintDatas[blueprintTable][blueprintID, blueprintParameter.ParameterHeader]} from Blueprint into data type {fieldInfo.FieldType}");
                             throw;
@@ -55,14 +54,18 @@ namespace ianco99.ToolBox.Bluprints
                         {
                             throw new Exception(exception.Message);
                         }
+
+                        fieldInfo.SetValue(instance, castedValue);
                     }
                     else
                     {
-                        throw new NullReferenceException($"No attribute of type {typeof(BlueprintParameterAttribute)} found for field {fieldInfo.Name} in blueprint table {blueprintTable}" );
+                        throw new NullReferenceException(
+                            $"No attribute of type {typeof(BlueprintParameterAttribute)} found for field {fieldInfo.Name} in blueprint table {blueprintTable}");
                     }
                 }
 
                 instanceType = instanceType.BaseType;
+                
             } while (instanceType != typeof(object));
         }
 
