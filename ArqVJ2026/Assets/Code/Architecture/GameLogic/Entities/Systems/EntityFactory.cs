@@ -7,6 +7,7 @@ using ianco99.ToolBox.Events;
 using ZooArchitect.Architecture.Entities.Events;
 using ianco99.ToolBox.Blueprints;
 using ianco99.ToolBox.Bluprints;
+using ZooArchitect.Architecture.Data;
 
 namespace ZooArchitect.Architecture.Entities
 {
@@ -39,7 +40,7 @@ namespace ZooArchitect.Architecture.Entities
             RegisterEntityMethods();
         }
 
-        public void CreateInstance<EntityType>(Coordinate coordinate) where EntityType : Entity
+        public void CreateInstance<EntityType>(string blueprintId, Coordinate coordinate) where EntityType : Entity
         {
             lastAssignedEntityId++;
             uint newEntityId = lastAssignedEntityId;
@@ -52,6 +53,8 @@ namespace ZooArchitect.Architecture.Entities
             object newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate });
 
             (newEntity as Entity).Init();
+
+            BlueprintBinder.Apply(ref newEntity, TableNames.ANIMALS_TABLE_NAME, blueprintId);
 
             if (RegisterEntityMethod == null)
             {
