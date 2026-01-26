@@ -4,17 +4,12 @@ using ianco99.ToolBox.TaskScheduler;
 using System.Collections.Generic;
 using ianco99.ToolBox.Blueprints;
 using ianco99.ToolBox.Bluprints;
+using ZooArchitect.Architecture.Data;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
     public sealed class DayNightCycle : IService
     {
-        private const int DAY_DURATION = 24;
-        private const int DAY_STEPS = 6;
-        private const int DAY_STEP_DURATION = DAY_DURATION / DAY_STEPS;
-
-        private const int HOUR_DURATION = 60;
-
         private readonly List<DayStep> daySteps;
         private int currentStep;
 
@@ -32,34 +27,29 @@ namespace ZooArchitect.Architecture.GameLogic
             currentStep = 0;
             daySteps = new List<DayStep>();
             
-            //TODO: Consult Leandro
-            foreach (var VARIABLE in blueprintRegistry.BlueprintsOf("DayNightCycle"))
+            foreach (var VARIABLE in blueprintRegistry.BlueprintsOf(TableNames.DAY_NIGHT_CYCLE_TABLE_NAME))
             {
                 object obj = new DayStep();
-                blueprintBinder.Apply( ref obj, "DayNightCycle", VARIABLE);
+                blueprintBinder.Apply(ref obj, "DayNightCycle", VARIABLE);
 
-                daySteps.Add(obj as DayStep);
+                daySteps.Add((DayStep)obj);
             }
 
-            taskScheduler.Schedule(ChangeStep, DAY_STEP_DURATION * HOUR_DURATION);
+            taskScheduler.Schedule(ChangeStep, CurrentDayStep.duration);
         }
 
         private void ChangeStep()
         {
             currentStep += (currentStep + 1) % daySteps.Count;
-            taskScheduler.Schedule(ChangeStep, DAY_STEP_DURATION * HOUR_DURATION);
+            taskScheduler.Schedule(ChangeStep, CurrentDayStep.duration);
             eventBus.Raise<DayStepChangeEvent>();
         }
     }
 
-    public sealed class DayStep
+    public struct DayStep
     {
         [BlueprintParameter("Name")] public string name;
         [BlueprintParameter("Duration")] public float duration;
 
-        public DayStep()
-        {
-       
-        }
     }
 }

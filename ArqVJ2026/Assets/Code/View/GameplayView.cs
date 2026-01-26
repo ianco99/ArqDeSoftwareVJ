@@ -24,9 +24,15 @@ namespace ZooArchitect.View
             gameplay = new Gameplay(BlueprintsPath);
             consoleView = new ConsoleView();
 
+            
+        }
+
+        private void Awake()
+        {
             EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
 
             gameplay.Init();
+            gameplay.LateInit();
         }
 
         void Update()

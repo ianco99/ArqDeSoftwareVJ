@@ -1,16 +1,16 @@
 using ianco99.ToolBox.Blueprints;
 using ianco99.ToolBox.Bluprints;
+using ianco99.ToolBox.DataFlow;
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
-using ianco99.ToolBox.Updateable;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.Entities.Events;
 using ZooArchitect.Architecture.GameLogic;
 
 namespace ZooArchitect.Architecture
 {
-    public sealed class Gameplay : IUpdateable
+    public sealed class Gameplay : IInitable, IUpdateable
     {
 
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
@@ -24,19 +24,6 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<BlueprintRegistry>(new BlueprintRegistry(blueprintsPath));
             ServiceProvider.Instance.AddService<BlueprintBinder>(new BlueprintBinder());
             ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
-            ServiceProvider.Instance.AddService<Time>(new Time());
-            ServiceProvider.Instance.AddService<DayNightCycle>(new DayNightCycle());
-            ServiceProvider.Instance.AddService<Wallet>(new Wallet());
-            ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
-            ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
-
-            new Map(10, 11);
-
-
-            EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
-            EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
-
-
         }
 
         private void NewEntityCreated(in EntityCreatedEvent<Entity> callback)
@@ -59,7 +46,22 @@ namespace ZooArchitect.Architecture
 
         public void Init()
         {
-            //EventBus.Raise<GameInitializedEvent>("sasa");
+            ServiceProvider.Instance.AddService<Time>(new Time());
+            ServiceProvider.Instance.AddService<DayNightCycle>(new DayNightCycle());
+            ServiceProvider.Instance.AddService<Wallet>(new Wallet());
+            ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
+            ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
+
+            
+        }
+
+        public void LateInit()
+        {
+            new Map(10, 11);
+
+
+            EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
+            EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
         }
     }
 }

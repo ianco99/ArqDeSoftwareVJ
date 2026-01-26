@@ -51,6 +51,7 @@ namespace ZooArchitect.Architecture.Entities
 
             object newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate });
 
+            (newEntity as Entity).Init();
 
             if (RegisterEntityMethod == null)
             {
@@ -72,6 +73,8 @@ namespace ZooArchitect.Architecture.Entities
             {
                 raiseEntityCreatedMethod.MakeGenericMethod(entityTypes[i]).Invoke(this, new object[] { newEntity });
             }
+
+            (newEntity as Entity).LateInit();
         }
 
         private void RaiseEntityCreated<EntityType>(EntityType newEntity) where EntityType : Entity
