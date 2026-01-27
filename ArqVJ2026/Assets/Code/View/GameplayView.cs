@@ -1,4 +1,3 @@
-using ianco99.ToolBox.DataFlow;
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
@@ -37,7 +36,7 @@ namespace ZooArchitect.View
 
         void Update()
         {
-            gameplay.Update(UnityEngine.Time.deltaTime);
+            gameplay.Tick(UnityEngine.Time.deltaTime);
         }
 
         private void OnDisable()
@@ -53,14 +52,5 @@ namespace ZooArchitect.View
             Debug.Log("CHANGED STEP");
 
         }
-    }
-
-    internal class ViewComponent : MonoBehaviour, IInitable, IUpdateable
-    {
-        public virtual void Init() { }
-
-        public virtual void LateInit() { }
-
-        public virtual void Update(float deltaTime) { }
     }
 }

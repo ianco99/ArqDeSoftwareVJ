@@ -20,7 +20,7 @@ namespace ZooArchitect.View.Entities
         {
             EventBus.Subscribe<EntityCreatedEvent<Entity>>(OnEntityCreated);
 
-            registerEntityMethod = PrefabsRegistryView.GetType().GetMethod(PrefabsRegistryView.RegisterMethodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            registerEntityMethod = EntityRegistry.GetType().GetMethod(EntityRegistry.RegisterMethodName, BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         private void OnEntityCreated(in EntityCreatedEvent<Entity> callback)
@@ -28,8 +28,9 @@ namespace ZooArchitect.View.Entities
             //TODO Coordinate to 
             GameObject instance = UnityEngine.Object.Instantiate(PrefabsRegistryView.Get(callback.blueprintId), new Vector3((float)callback.coordinate.Origin.X, 0.0f, (float)callback.coordinate.Origin.Y), Quaternion.identity);
 
-            EntityView entityView = instance.GetComponent<EntityView>();
-            registerEntityMethod.Invoke(EntityRegistry, new object[] {entityView});
+            //instance.AddComponent
+
+            registerEntityMethod.Invoke(EntityRegistry, new object[] {instance.GetComponent<EntityView>()});
         }
 
         public void Dispose()

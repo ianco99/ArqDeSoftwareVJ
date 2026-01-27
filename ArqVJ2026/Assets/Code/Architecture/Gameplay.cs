@@ -10,7 +10,7 @@ using ZooArchitect.Architecture.GameLogic;
 
 namespace ZooArchitect.Architecture
 {
-    public sealed class Gameplay : IInitable, IUpdateable
+    public sealed class Gameplay : IInitable, ITickable
     {
 
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
@@ -36,11 +36,11 @@ namespace ZooArchitect.Architecture
 
         }
 
-        public void Update(float deltaTime)
+        public void Tick(float deltaTime)
         {
             ServiceProvider.Instance.GetService<Time>();
-            time.Update(deltaTime);
-            TaskScheduler.Update(time.LogicDeltaTime);
+            time.Tick(deltaTime);
+            TaskScheduler.Tick(time.LogicDeltaTime);
 
         }
 

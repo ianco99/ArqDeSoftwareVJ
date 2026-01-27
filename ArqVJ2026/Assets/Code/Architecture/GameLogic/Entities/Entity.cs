@@ -3,7 +3,7 @@ using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Entities
 {
-    public abstract class Entity : IInitable, IUpdateable
+    public abstract class Entity : IInitable, ITickable
     {
         public const uint UNASSIGNED_ENTITY_ID = 0;
 
@@ -20,6 +20,6 @@ namespace ZooArchitect.Architecture.Entities
 
         public virtual void LateInit(){ }
 
-        public virtual void Update(float deltaTime) { }
+        public virtual void Tick(float deltaTime) { }
     }
 }
