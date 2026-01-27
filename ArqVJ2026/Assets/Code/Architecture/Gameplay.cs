@@ -1,5 +1,4 @@
 using ianco99.ToolBox.Blueprints;
-using ianco99.ToolBox.Bluprints;
 using ianco99.ToolBox.DataFlow;
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
@@ -17,6 +16,7 @@ namespace ZooArchitect.Architecture
         private TaskScheduler TaskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
         private Time time => ServiceProvider.Instance.GetService<Time>();
 
+        private EntityFactory EntityFactory => ServiceProvider.Instance.GetService<EntityFactory>();
 
         public Gameplay(string blueprintsPath)
         {
@@ -57,7 +57,8 @@ namespace ZooArchitect.Architecture
 
         public void LateInit()
         {
-            new Map(10, 11);
+            //new Map(10, 11);
+            EntityFactory.CreateInstance<Animal>("Monkey", new Math.Coordinate(new Math.Point(0,0)));
 
 
             EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);

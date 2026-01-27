@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using ianco99.ToolBox.Events;
 using ZooArchitect.Architecture.Entities.Events;
 using ianco99.ToolBox.Blueprints;
-using ianco99.ToolBox.Bluprints;
 using ZooArchitect.Architecture.Data;
 
 namespace ZooArchitect.Architecture.Entities

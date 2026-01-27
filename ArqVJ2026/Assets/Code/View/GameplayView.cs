@@ -4,10 +4,14 @@ using ianco99.ToolBox.TaskScheduler;
 using UnityEngine;
 using ZooArchitect.Architecture;
 using ZooArchitect.Architecture.GameLogic;
+using ZooArchitect.View.Entities;
 using ZooArchitect.View.Logs;
+using ZooArchitect.View.Mapping;
+using ZooArchitect.View.Resources;
 
 namespace ZooArchitect.View
 {
+    [ViewOf(typeof(Gameplay))]
     public sealed class GameplayView : MonoBehaviour
     {
         public EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
@@ -17,21 +21,29 @@ namespace ZooArchitect.View
 
         private Gameplay gameplay;
         private ConsoleView consoleView;
+        EntityFactoryView entityFactoryView;
 
         void Start()
         {
-            gameplay = new Gameplay(BlueprintsPath);
-            consoleView = new ConsoleView();
 
+            EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
+            gameplay.Init();
+            gameplay.LateInit();
 
         }
 
         private void Awake()
         {
-            EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
+            ViewToArchitectureMap.Init();
 
-            gameplay.Init();
-            gameplay.LateInit();
+            gameplay = new Gameplay(BlueprintsPath);
+
+            ServiceProvider.Instance.AddService<EntityRegistryView>(new EntityRegistryView());
+            ServiceProvider.Instance.AddService<PrefabsRegistryView>(new PrefabsRegistryView());
+            entityFactoryView = new EntityFactoryView();
+
+            consoleView = new ConsoleView();
+
         }
 
         void Update()
