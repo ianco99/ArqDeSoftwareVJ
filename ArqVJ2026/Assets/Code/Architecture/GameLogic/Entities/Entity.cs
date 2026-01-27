@@ -8,7 +8,7 @@ namespace ZooArchitect.Architecture.Entities
         public const uint UNASSIGNED_ENTITY_ID = 0;
 
         public uint ID;
-        private Coordinate coordinate;
+        public Coordinate coordinate;
 
         protected Entity(uint ID, Coordinate coordinate)
         {

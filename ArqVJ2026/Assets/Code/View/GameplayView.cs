@@ -1,7 +1,7 @@
+using ianco99.ToolBox.DataFlow;
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
-using System.IO;
 using UnityEngine;
 using ZooArchitect.Architecture;
 using ZooArchitect.Architecture.GameLogic;
@@ -14,7 +14,7 @@ namespace ZooArchitect.View
         public EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         public TaskScheduler TaskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
 
-        private string BlueprintsPath => Path.Combine(Application.streamingAssetsPath, "Blueprints", "Blueprints.xlsx");
+        private string BlueprintsPath => System.IO.Path.Combine(Application.streamingAssetsPath, "Blueprints", "Blueprints.xlsx");
 
         private Gameplay gameplay;
         private ConsoleView consoleView;
@@ -24,7 +24,7 @@ namespace ZooArchitect.View
             gameplay = new Gameplay(BlueprintsPath);
             consoleView = new ConsoleView();
 
-            
+
         }
 
         private void Awake()
@@ -37,7 +37,7 @@ namespace ZooArchitect.View
 
         void Update()
         {
-            //gameplay.Update(UnityEngine.Time.deltaTime);
+            gameplay.Update(UnityEngine.Time.deltaTime);
         }
 
         private void OnDisable()
@@ -51,7 +51,16 @@ namespace ZooArchitect.View
         private void OnStepChanged(in DayStepChangeEvent gameInitializedEvent)
         {
             Debug.Log("CHANGED STEP");
-            
+
         }
+    }
+
+    internal class ViewComponent : MonoBehaviour, IInitable, IUpdateable
+    {
+        public virtual void Init() { }
+
+        public virtual void LateInit() { }
+
+        public virtual void Update(float deltaTime) { }
     }
 }

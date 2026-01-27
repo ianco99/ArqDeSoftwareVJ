@@ -20,7 +20,7 @@ namespace ZooArchitect.Architecture.Entities
         public bool IsPersistance => false;
 
         private Dictionary<Type, ConstructorInfo> entityConstructors;
-        private MethodInfo RegisterEntityMethod;
+        private MethodInfo registerEntityMethod;
         private MethodInfo raiseEntityCreatedMethod;
 
         public EntityFactory()
@@ -33,7 +33,7 @@ namespace ZooArchitect.Architecture.Entities
                 throw new NullReferenceException("Accessed Registry before creation");
             }
 
-            RegisterEntityMethod = EntityRegistry.GetType().GetMethod(EntityRegistry.RegisterMethodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            registerEntityMethod = EntityRegistry.GetType().GetMethod(EntityRegistry.RegisterMethodName, BindingFlags.NonPublic | BindingFlags.Instance);
 
             raiseEntityCreatedMethod = GetType().GetMethod(nameof(RaiseEntityCreated), BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -52,16 +52,16 @@ namespace ZooArchitect.Architecture.Entities
 
             object newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate });
 
-            (newEntity as Entity).Init();
-
             BlueprintBinder.Apply(ref newEntity, TableNames.ANIMALS_TABLE_NAME, blueprintId);
 
-            if (RegisterEntityMethod == null)
+            (newEntity as Entity).Init();
+
+            if (registerEntityMethod == null)
             {
                 throw new MissingMethodException($"Missing EntityRegistry register method");
             }
 
-            RegisterEntityMethod.Invoke(EntityRegistry, new object[] { newEntity });
+            registerEntityMethod.Invoke(EntityRegistry, new object[] { newEntity });
 
             List<Type> entityTypes = new List<Type>();
             Type currentType = null;
@@ -74,15 +74,15 @@ namespace ZooArchitect.Architecture.Entities
 
             for (int i = entityTypes.Count - 1; i >= 0; i--)
             {
-                raiseEntityCreatedMethod.MakeGenericMethod(entityTypes[i]).Invoke(this, new object[] { newEntity });
+                raiseEntityCreatedMethod.MakeGenericMethod(entityTypes[i]).Invoke(this, new object[] {blueprintId, newEntity });
             }
 
             (newEntity as Entity).LateInit();
         }
 
-        private void RaiseEntityCreated<EntityType>(EntityType newEntity) where EntityType : Entity
+        private void RaiseEntityCreated<EntityType>(string blueprintId, EntityType newEntity) where EntityType : Entity
         {
-            EventBus.Raise<EntityCreatedEvent<EntityType>>(newEntity.ID);
+            EventBus.Raise<EntityCreatedEvent<EntityType>>(blueprintId, newEntity.ID, newEntity.coordinate);
         }
 
         private void RegisterEntityMethods()

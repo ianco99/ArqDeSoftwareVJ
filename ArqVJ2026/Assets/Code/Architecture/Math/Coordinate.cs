@@ -8,7 +8,8 @@ namespace ZooArchitect.Architecture.Math
         private Point[] points;
 
         public bool IsSingleCoordinate => points.Length == 1;
-
+        public Point Origin => points[0];
+        public Point SecondPoint => points[1];
         public IEnumerable<Point> Points => points;
 
         public Coordinate(params Point[] points)
