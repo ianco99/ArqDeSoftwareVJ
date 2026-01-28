@@ -42,6 +42,8 @@ namespace ZooArchitect.View.Entities
 
             Component viewComponent = instance.AddComponent(ViewToArchitectureMap.ViewOf(EntityRegistry[callback.entityCreatedId].GetType()));
 
+            viewComponent.gameObject.name += $"  -  Architecture type: {EntityRegistry[callback.entityCreatedId].GetType().Name} - ID: {callback.entityCreatedId}";
+
             setEntityIdMethod.Invoke(viewComponent, new object[] { callback.entityCreatedId });
 
             registerEntityMethod.Invoke(EntityRegistryView, new object[] { viewComponent});

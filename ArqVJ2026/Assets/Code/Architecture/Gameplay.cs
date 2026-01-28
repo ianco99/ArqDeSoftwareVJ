@@ -3,13 +3,15 @@ using ianco99.ToolBox.DataFlow;
 using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using ianco99.ToolBox.TaskScheduler;
+using System;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.Entities.Events;
 using ZooArchitect.Architecture.GameLogic;
+using ZooArchitect.Architecture.GameLogic.Controllers;
 
 namespace ZooArchitect.Architecture
 {
-    public sealed class Gameplay : IInitable, ITickable
+    public sealed class Gameplay : IInitable, ITickable, IDisposable
     {
 
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
@@ -18,12 +20,14 @@ namespace ZooArchitect.Architecture
 
         private EntityFactory EntityFactory => ServiceProvider.Instance.GetService<EntityFactory>();
 
+        private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
         public Gameplay(string blueprintsPath)
         {
             ServiceProvider.Instance.AddService<EventBus>(new EventBus());
             ServiceProvider.Instance.AddService<BlueprintRegistry>(new BlueprintRegistry(blueprintsPath));
             ServiceProvider.Instance.AddService<BlueprintBinder>(new BlueprintBinder());
             ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
+
         }
 
         private void NewEntityCreated(in EntityCreatedEvent<Entity> callback)
@@ -63,6 +67,12 @@ namespace ZooArchitect.Architecture
 
             EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
             EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
+            spawnEntityControllerArchitecture = new SpawnEntityControllerArchitecture();
+        }
+
+        public void Dispose()
+        {
+            spawnEntityControllerArchitecture.Dispose();
         }
     }
 }

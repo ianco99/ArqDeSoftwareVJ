@@ -14,5 +14,14 @@
             this.y = y;
         }
 
+        public static bool operator ==(Point left, Point right)
+        {
+            return left.x == right.x && left.y == right.y;
+        }
+
+        public static bool operator !=(Point left, Point right)
+        {
+            return !(left == right);
+        }
     }
 }

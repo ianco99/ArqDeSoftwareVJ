@@ -7,10 +7,11 @@ using ianco99.ToolBox.Events;
 using ZooArchitect.Architecture.Entities.Events;
 using ianco99.ToolBox.Blueprints;
 using ZooArchitect.Architecture.Data;
+using ZooArchitect.Architecture.Controllers.Events;
 
 namespace ZooArchitect.Architecture.Entities
 {
-    public sealed class EntityFactory : IService
+    public sealed class EntityFactory : IService, IDisposable
     {
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
@@ -37,6 +38,13 @@ namespace ZooArchitect.Architecture.Entities
             raiseEntityCreatedMethod = GetType().GetMethod(nameof(RaiseEntityCreated), BindingFlags.NonPublic | BindingFlags.Instance);
 
             RegisterEntityMethods();
+
+            EventBus.Subscribe<SpawnEntityRequestAcceptedEvent>(SpawnEntity);
+        }
+
+        private void SpawnEntity(in SpawnEntityRequestAcceptedEvent spawnEntityRequestAcceptedEvent)
+        {
+            CreateInstance<Animal>(spawnEntityRequestAcceptedEvent.blueprintToSpawn, spawnEntityRequestAcceptedEvent.coordinateToSpawn);
         }
 
         public void CreateInstance<EntityType>(string blueprintId, Coordinate coordinate) where EntityType : Entity
@@ -111,6 +119,11 @@ namespace ZooArchitect.Architecture.Entities
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            EventBus.UnSubscribe<SpawnEntityRequestAcceptedEvent>(SpawnEntity);
         }
     }
 

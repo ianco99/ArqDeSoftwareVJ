@@ -4,6 +4,7 @@ using ianco99.ToolBox.TaskScheduler;
 using UnityEngine;
 using ZooArchitect.Architecture;
 using ZooArchitect.Architecture.GameLogic;
+using ZooArchitect.View.Controller;
 using ZooArchitect.View.Entities;
 using ZooArchitect.View.Logs;
 using ZooArchitect.View.Mapping;
@@ -22,6 +23,7 @@ namespace ZooArchitect.View
         private Gameplay gameplay;
         private ConsoleView consoleView;
         EntityFactoryView entityFactoryView;
+        private SpawnEntityControllerView spawnEntityControllerView;
 
         void Start()
         {
@@ -29,6 +31,7 @@ namespace ZooArchitect.View
             EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
             gameplay.Init();
             gameplay.LateInit();
+            spawnEntityControllerView = new SpawnEntityControllerView();
 
         }
 
@@ -49,12 +52,14 @@ namespace ZooArchitect.View
         void Update()
         {
             gameplay.Tick(UnityEngine.Time.deltaTime);
+            spawnEntityControllerView.Tick(UnityEngine.Time.deltaTime);
         }
 
         private void OnDisable()
         {
+            gameplay.Dispose();
             consoleView.Dispose();
-
+            spawnEntityControllerView.Dispose();
             EventBus.UnSubscribe<DayStepChangeEvent>(OnStepChanged);
 
         }

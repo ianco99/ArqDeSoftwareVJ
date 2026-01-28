@@ -4,7 +4,7 @@ using ZooArchitect.Architecture.Logs.Events;
 
 namespace ZooArchitect.Architecture.Logs
 {
-    internal static class Console
+    public static class Console
     {
         private static EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
 
