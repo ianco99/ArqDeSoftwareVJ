@@ -4,8 +4,6 @@ using ianco99.ToolBox.TaskScheduler;
 using UnityEngine;
 using ZooArchitect.Architecture;
 using ZooArchitect.Architecture.GameLogic;
-using ZooArchitect.View.Controller;
-using ZooArchitect.View.Entities;
 using ZooArchitect.View.Logs;
 using ZooArchitect.View.Mapping;
 using ZooArchitect.View.Resources;
@@ -17,33 +15,36 @@ namespace ZooArchitect.View
     {
         public EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         public TaskScheduler TaskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
-
+        private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
         private string BlueprintsPath => System.IO.Path.Combine(Application.streamingAssetsPath, "Blueprints", "Blueprints.xlsx");
 
         private Gameplay gameplay;
         private ConsoleView consoleView;
-        EntityFactoryView entityFactoryView;
-        private SpawnEntityControllerView spawnEntityControllerView;
 
         void Start()
         {
 
             EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
-            gameplay.Init();
-            gameplay.LateInit();
-            spawnEntityControllerView = new SpawnEntityControllerView();
 
+            gameplay.Init();
+            GameScene.Init();
+
+
+            gameplay.LateInit();
+            GameScene.LateInit();
         }
 
         private void Awake()
         {
             ViewToArchitectureMap.Init();
+            ServiceProvider.Instance.AddService<PrefabsRegistryView>(new PrefabsRegistryView());
 
             gameplay = new Gameplay(BlueprintsPath);
 
-            ServiceProvider.Instance.AddService<EntityRegistryView>(new EntityRegistryView());
-            ServiceProvider.Instance.AddService<PrefabsRegistryView>(new PrefabsRegistryView());
-            entityFactoryView = new EntityFactoryView();
+            GameScene gameScene = GameScene.AddSceneComponent<GameScene>("Scene", this.transform);
+            ServiceProvider.Instance.AddService<GameScene>(gameScene);
+
+
 
             consoleView = new ConsoleView();
 
@@ -52,16 +53,15 @@ namespace ZooArchitect.View
         void Update()
         {
             gameplay.Tick(UnityEngine.Time.deltaTime);
-            spawnEntityControllerView.Tick(UnityEngine.Time.deltaTime);
+            GameScene.Tick(UnityEngine.Time.deltaTime);
         }
 
         private void OnDisable()
         {
             gameplay.Dispose();
             consoleView.Dispose();
-            spawnEntityControllerView.Dispose();
             EventBus.UnSubscribe<DayStepChangeEvent>(OnStepChanged);
-
+            GameScene.Dispose();
         }
 
         private void OnStepChanged(in DayStepChangeEvent gameInitializedEvent)

@@ -16,6 +16,7 @@ namespace ZooArchitect.View.Entities
 
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
+        private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
         private EntityRegistryView EntityRegistryView => ServiceProvider.Instance.GetService<EntityRegistryView>();
 
         private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
@@ -35,18 +36,21 @@ namespace ZooArchitect.View.Entities
 
         private void OnEntityCreated(in EntityCreatedEvent<Entity> callback)
         {
-            GameObject instance = UnityEngine.Object.Instantiate(PrefabsRegistryView.Get(callback.blueprintId),
-                new Vector3((float)callback.coordinate.Origin.X, 0.0f, (float)callback.coordinate.Origin.Y), // TODO Coordinate to Vector3 translator
-                Quaternion.identity);
+            ViewComponent viewComponent = GameScene.AddSceneComponent(
+               ViewToArchitectureMap.ViewOf(EntityRegistry[callback.entityCreatedId].GetType()),
+               PrefabsRegistryView.Get(callback.blueprintId).name + $"  -  Architecture type: {EntityRegistry[callback.entityCreatedId].GetType().Name} - ID: {callback.entityCreatedId}",
+               GameScene.EntitiesContainer.transform,
+               PrefabsRegistryView.Get(callback.blueprintId));
+
+            viewComponent.transform.position = new Vector3((float)callback.coordinate.Origin.X, 0.0f, (float)callback.coordinate.Origin.Y); // TODO Coordinate to Vector3 translator
 
 
-            Component viewComponent = instance.AddComponent(ViewToArchitectureMap.ViewOf(EntityRegistry[callback.entityCreatedId].GetType()));
 
             viewComponent.gameObject.name += $"  -  Architecture type: {EntityRegistry[callback.entityCreatedId].GetType().Name} - ID: {callback.entityCreatedId}";
 
             setEntityIdMethod.Invoke(viewComponent, new object[] { callback.entityCreatedId });
 
-            registerEntityMethod.Invoke(EntityRegistryView, new object[] { viewComponent});
+            registerEntityMethod.Invoke(EntityRegistryView, new object[] { viewComponent });
         }
 
         public void Dispose()
