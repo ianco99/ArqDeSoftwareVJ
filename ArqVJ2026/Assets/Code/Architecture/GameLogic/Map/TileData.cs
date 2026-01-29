@@ -6,10 +6,10 @@ namespace ZooArchitect.Architecture.GameLogic
     {
         [BlueprintParameter("Is Walkable")] public bool isWalkable;
         [BlueprintParameter("Is Structure")] public bool isStructure;
-        [BlueprintParameter("Is Animal Container")] public bool isAnimalContainer;
+        [BlueprintParameter("Is Animal Habitat")] public bool isAnimalContainer;
         [BlueprintParameter("Can Spawn Humans")] public bool canSpawnHumans;
         [BlueprintParameter("Can Dispawn Humans")] public bool canDispawnHumans;
-        [BlueprintParameter("Can Dispawn Humans")] public bool isDefault;
+        [BlueprintParameter("Is Default")] public bool isDefault;
     }
 
 }

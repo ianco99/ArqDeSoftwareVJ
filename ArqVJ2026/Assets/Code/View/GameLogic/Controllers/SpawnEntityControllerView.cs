@@ -13,7 +13,7 @@ namespace ZooArchitect.View.Controller
 {
     class SpawnEntityControllerView : ITickable, System.IDisposable
     {
-        private List<KeyCode> keys = new List<KeyCode>()
+        private readonly List<KeyCode> keys = new()
         {
             KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5
         };
@@ -35,7 +35,7 @@ namespace ZooArchitect.View.Controller
         {
             for (int i = 0; i < animalsBlueprints.Count; i++)
             {
-                if(Input.GetKeyDown(keys[i]))
+                if(!Input.GetKey(keys[i]))
                 {
                     EventBus.Raise<SpawnEntityRequestEvent>(animalsBlueprints[i], new  Coordinate(new Point(i,i)));
                 }
