@@ -35,7 +35,7 @@ namespace ZooArchitect.View.Controller
         {
             for (int i = 0; i < animalsBlueprints.Count; i++)
             {
-                if(!Input.GetKey(keys[i]))
+                if(Input.GetKey(keys[i]))
                 {
                     EventBus.Raise<SpawnEntityRequestEvent>(animalsBlueprints[i], new  Coordinate(new Point(i,i)));
                 }

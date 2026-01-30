@@ -19,8 +19,7 @@ namespace ZooArchitect.Architecture
         private Time time => ServiceProvider.Instance.GetService<Time>();
 
         private EntityFactory EntityFactory => ServiceProvider.Instance.GetService<EntityFactory>();
-
-        private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
+        private Scene scene;
         public Gameplay(string blueprintsPath)
         {
             ServiceProvider.Instance.AddService<EventBus>(new EventBus());
@@ -28,6 +27,40 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<BlueprintBinder>(new BlueprintBinder());
             ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
 
+            scene = new Scene();
+        }
+
+
+        public void Init()
+        {
+            scene.Init();
+
+            
+        }
+
+        public void LateInit()
+        {
+
+            scene.LateInit();
+
+            EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
+            EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
+        }
+
+
+
+
+        public void Tick(float deltaTime)
+        {
+            ServiceProvider.Instance.GetService<Time>();
+            time.Tick(deltaTime);
+            TaskScheduler.Tick(time.LogicDeltaTime);
+            scene.Tick(deltaTime);
+        }
+
+        public void Dispose()
+        {
+            scene.Dispose();
         }
 
         private void NewEntityCreated(in EntityCreatedEvent<Entity> callback)
@@ -38,41 +71,6 @@ namespace ZooArchitect.Architecture
         private void NewAnimalCreated(in EntityCreatedEvent<Animal> callback)
         {
 
-        }
-
-        public void Tick(float deltaTime)
-        {
-            ServiceProvider.Instance.GetService<Time>();
-            time.Tick(deltaTime);
-            TaskScheduler.Tick(time.LogicDeltaTime);
-
-        }
-
-        public void Init()
-        {
-            ServiceProvider.Instance.AddService<Time>(new Time());
-            ServiceProvider.Instance.AddService<DayNightCycle>(new DayNightCycle());
-            ServiceProvider.Instance.AddService<Wallet>(new Wallet());
-            ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
-            ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
-
-            
-        }
-
-        public void LateInit()
-        {
-            //new Map(10, 11);
-            EntityFactory.CreateInstance<Animal>("Monkey", new Math.Coordinate(new Math.Point(0,0)));
-
-
-            EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
-            EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
-            spawnEntityControllerArchitecture = new SpawnEntityControllerArchitecture();
-        }
-
-        public void Dispose()
-        {
-            spawnEntityControllerArchitecture.Dispose();
         }
     }
 }

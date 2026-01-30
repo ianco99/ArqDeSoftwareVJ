@@ -37,14 +37,13 @@ namespace ZooArchitect.View
         private void Awake()
         {
             ViewToArchitectureMap.Init();
-            ServiceProvider.Instance.AddService<PrefabsRegistryView>(new PrefabsRegistryView());
 
             gameplay = new Gameplay(BlueprintsPath);
 
+            ServiceProvider.Instance.AddService<PrefabsRegistryView>(new PrefabsRegistryView());
+
             GameScene gameScene = GameScene.AddSceneComponent<GameScene>("Scene", this.transform);
             ServiceProvider.Instance.AddService<GameScene>(gameScene);
-
-
 
             consoleView = new ConsoleView();
 

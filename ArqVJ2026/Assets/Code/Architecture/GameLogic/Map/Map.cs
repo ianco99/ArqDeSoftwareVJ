@@ -1,16 +1,19 @@
 ﻿using ianco99.ToolBox.Blueprints;
+using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using System;
 using System.Collections.Generic;
 using ZooArchitect.Architecture.Data;
 using ZooArchitect.Architecture.Exceptions;
+using ZooArchitect.Architecture.GameLogic.Events;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
     public sealed class Map
     {
-        BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
-        BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
+        private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
+        private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
+        private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
 
         private uint sizeX;
         private uint sizeY;
@@ -24,6 +27,7 @@ namespace ZooArchitect.Architecture.GameLogic
         {
             this.sizeX = sizeX;
             this.sizeY = sizeY;
+
             tileDatas = new Dictionary<int, TileData>();
             tileHashToName = new Dictionary<int, string>();
 
@@ -35,9 +39,9 @@ namespace ZooArchitect.Architecture.GameLogic
                 {
                     BlueprintBinder.Apply(ref tileData, TableNames.TILE_TYPES_TABLE_NAME, tileTypeID);
                 }
-                catch (DataMisalignedException exception )
+                catch (DataMisalignedException exception)
                 {
-                    throw new DataEntryException($"Falied to read {TableNames.TILE_TYPES_TABLE_NAME} - {tileTypeID} ({exception.Message})");
+                    throw new DataEntryException($"Failed to read {TableNames.TILE_TYPES_TABLE_NAME} - {tileTypeID}\n({exception.Message})");
                 }
 
                 tileDatas.Add(tileTypeID.GetHashCode(), (TileData)tileData);
@@ -46,30 +50,28 @@ namespace ZooArchitect.Architecture.GameLogic
 
             grid = new Tile[sizeX, sizeY];
             int defaultDataHash = 0;
-
-            TileData defaultData;
-            foreach (TileData tileData in tileDatas.Values)
+            foreach (KeyValuePair<int, TileData> tileData in tileDatas)
             {
-                if (tileData.isDefault)
+                if (tileData.Value.isDefault)
                 {
-                    defaultDataHash = tileData.GetHashCode();
+                    defaultDataHash = tileData.Key.GetHashCode();
                     break;
                 }
             }
 
             if (defaultDataHash == 0)
-            {
-                throw new BrokenGameRuleException("Missing default tile definition in Blueprints.xlsx");
-            }
+                throw new BrokenGameRuleException("Missing defualt tile definition in Blueprints.xlsx");
 
             for (int x = 0; x < sizeX; x++)
             {
                 for (int y = 0; y < sizeY; y++)
                 {
                     grid[x, y] = new Tile(defaultDataHash);
+                    EventBus.Raise<TileCreatedEvent>(defaultDataHash, x, y);
                 }
             }
+
+            EventBus.Raise<MapCreatedEvent>();
         }
     }
-
 }

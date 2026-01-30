@@ -20,15 +20,21 @@ namespace ZooArchitect.View
         internal Container MapContainer => mapContainer;
         internal Container EntitiesContainer => entitiesContainer;
 
+        private MapView mapView;
 
         public override void Init()
         {
             base.Init();
             ServiceProvider.Instance.AddService<EntityRegistryView>(new EntityRegistryView());
             entityFactoryView = new EntityFactoryView();
-            mapContainer = GameScene.AddSceneComponent<Container>("Map container", this.transform);
 
+            mapContainer = GameScene.AddSceneComponent<Container>("Map container", this.transform);
+            mapContainer.Init();
             entitiesContainer = GameScene.AddSceneComponent<Container>("Entities container", this.transform);
+            entitiesContainer.Init();
+
+            mapView = GameScene.AddSceneComponent<MapView>("Map", MapContainer.transform);
+            mapView.Init();
         }
 
 
@@ -36,13 +42,18 @@ namespace ZooArchitect.View
         {
             base.LateInit();
             spawnEntityControllerView = new SpawnEntityControllerView();
+            mapContainer.LateInit();
+            entitiesContainer.LateInit();
+            mapView.LateInit();
         }
 
         public override void Tick(float deltaTime)
         {
             base.Tick(deltaTime);
-            spawnEntityControllerView.Tick(UnityEngine.Time.deltaTime);
-
+            spawnEntityControllerView.Tick(deltaTime);
+            mapContainer.Tick(deltaTime);
+            entitiesContainer.Tick(deltaTime);
+            mapView.Tick(deltaTime);
         }
 
         public override void Dispose()
@@ -50,6 +61,9 @@ namespace ZooArchitect.View
             base.Dispose();
             spawnEntityControllerView.Dispose();
             entityFactoryView.Dispose();
+            mapContainer.Dispose();
+            entitiesContainer.Dispose();
+            mapView.Dispose();
         }
 
         public static ComponentType AddSceneComponent<ComponentType>(string name, Transform parent = null, GameObject prefab = null) where ComponentType : ViewComponent
@@ -72,10 +86,5 @@ namespace ZooArchitect.View
 
             return component;
         }
-    }
-
-    internal sealed class MapView : ViewComponent
-    {
-
     }
 }

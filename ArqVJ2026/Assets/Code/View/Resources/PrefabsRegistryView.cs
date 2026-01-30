@@ -16,30 +16,38 @@ namespace ZooArchitect.View.Resources
 
         public bool IsPersistance => false;
 
-        private Dictionary<string, string> prefabPaths;
-        private Dictionary<string, GameObject> prefabs;
+        private Dictionary<string, Dictionary<string, string>> prefabPaths;
+        private Dictionary<string, Dictionary<string, GameObject>> prefabs;
 
         private GameObject missingPrefab;
 
         public PrefabsRegistryView()
         {
-            prefabs = new Dictionary<string, GameObject>();
-            prefabPaths = new Dictionary<string, string>();
+            prefabs = new Dictionary<string, Dictionary<string, GameObject>>();
+            prefabPaths = new Dictionary<string, Dictionary<string, string>>();
+
             missingPrefab = UnityEngine.Resources.Load<GameObject>(Path.Combine("Prefabs", "Missing Prefab"));
-            foreach (string id in BlueprintRegistry.BlueprintsOf(TableNamesView.PREFABS_VIEW_TABLE_NAME))
+
+            foreach (string prefabTable in TableNamesView.PREFAB_TABLES)
             {
-                object prefabPath = new PrefabPath();
-                BlueprintBinder.Apply(ref prefabPath, TableNamesView.PREFABS_VIEW_TABLE_NAME, id);
-                prefabPaths.Add(((PrefabPath)prefabPath).architectureID, ((PrefabPath)prefabPath).PrefabResourcePath);
+                prefabs.Add(prefabTable, new Dictionary<string, GameObject>());
+                prefabPaths.Add(prefabTable, new Dictionary<string, string>());
+                foreach (string id in BlueprintRegistry.BlueprintsOf(prefabTable))
+                {
+                    object prefabPath = new PrefabPath();
+                    BlueprintBinder.Apply(ref prefabPath, prefabTable, id);
+                    prefabPaths[prefabTable].Add(((PrefabPath)prefabPath).architectureID, ((PrefabPath)prefabPath).PrefabResourcePath);
+                }
             }
+
         }
 
-        public GameObject Get(string architectureID)
+        public GameObject Get(string tableName, string architectureID)
         {
-            string resourcePath = prefabPaths[architectureID];
+            string resourcePath = prefabPaths[tableName][architectureID];
 
-            if (prefabs.ContainsKey(resourcePath))
-                return prefabs[resourcePath];
+            if (prefabs[tableName].ContainsKey(resourcePath))
+                return prefabs[tableName][resourcePath];
 
             GameObject prefab = UnityEngine.Resources.Load<GameObject>(resourcePath);
 
@@ -49,7 +57,7 @@ namespace ZooArchitect.View.Resources
                 Console.Warning($"Missing prefab in resource folder: {resourcePath}");
             }
 
-            prefabs.Add(resourcePath, prefab);
+            prefabs[tableName].Add(resourcePath, prefab);
             return prefab;
         }
 
