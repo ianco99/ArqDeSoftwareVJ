@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.View.Mapping;
+using ZooArchitect.View.Scene;
 
 namespace ZooArchitect.View.Entities
 {

@@ -7,6 +7,7 @@ using ZooArchitect.Architecture.GameLogic;
 using ZooArchitect.View.Logs;
 using ZooArchitect.View.Mapping;
 using ZooArchitect.View.Resources;
+using ZooArchitect.View.Scene;
 
 namespace ZooArchitect.View
 {
@@ -18,24 +19,15 @@ namespace ZooArchitect.View
         private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
         private string BlueprintsPath => System.IO.Path.Combine(Application.streamingAssetsPath, "Blueprints", "Blueprints.xlsx");
 
+        [SerializeField] private Canvas gameCanvas;
         private Gameplay gameplay;
         private ConsoleView consoleView;
 
-        void Start()
-        {
-
-            EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
-
-            gameplay.Init();
-            GameScene.Init();
-
-
-            gameplay.LateInit();
-            GameScene.LateInit();
-        }
-
         private void Awake()
         {
+            if(gameCanvas == null)
+                throw new MissingComponentException("Missing canvas!");
+
             ViewToArchitectureMap.Init();
 
             gameplay = new Gameplay(BlueprintsPath);
@@ -48,6 +40,20 @@ namespace ZooArchitect.View
             consoleView = new ConsoleView();
 
         }
+
+        void Start()
+        {
+
+            EventBus.Subscribe<DayStepChangeEvent>(OnStepChanged);
+
+            gameplay.Init();
+            GameScene.Init(gameCanvas);
+
+
+            gameplay.LateInit();
+            GameScene.LateInit();
+        }
+
 
         void Update()
         {
