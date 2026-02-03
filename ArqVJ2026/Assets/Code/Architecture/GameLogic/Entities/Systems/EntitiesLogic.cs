@@ -13,8 +13,13 @@ namespace ZooArchitect.Architecture.Entities
         public bool IsPersistance => throw new NotImplementedException();
         private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
         private Scene Scene => ServiceProvider.Instance.GetService<Scene>();
+        private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
         public void Tick(float deltaTime)
         {
+            foreach (Entity entity  in EntityRegistry.Animals)
+            {
+                entity.Tick(deltaTime);
+            }
         }
 
         public void Dispose()

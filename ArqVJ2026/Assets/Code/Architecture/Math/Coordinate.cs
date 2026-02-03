@@ -21,6 +21,12 @@ namespace ZooArchitect.Architecture.Math
             this.points = points;
         }
 
-
+        public void Move(Point offset)
+        {
+            for (int i = 0; i < points.Length; i++)
+            {
+                points[i] += offset;
+            }
+        }
     }
 }

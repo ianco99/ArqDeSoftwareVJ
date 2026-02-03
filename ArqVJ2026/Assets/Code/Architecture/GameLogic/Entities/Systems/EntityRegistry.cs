@@ -24,16 +24,16 @@ namespace ZooArchitect.Architecture.Entities
         private void Register(Entity entity)
         {
             entities.Add(entity.ID, entity);
-            Type currentEntityType = entity.GetType();
+            Type currentEntityType = null;
 
             do
             {
+                currentEntityType = currentEntityType == null ? entity.GetType() : currentEntityType.BaseType;
                 if (!entityIdsPerType.ContainsKey(currentEntityType))
                 {
                     entityIdsPerType.Add(currentEntityType, new List<uint>());
                 }
                 entityIdsPerType[currentEntityType].Add(entity.ID);
-                currentEntityType = currentEntityType.BaseType;
             } while (currentEntityType != typeof(Entity));
         }
 
@@ -44,7 +44,7 @@ namespace ZooArchitect.Architecture.Entities
                 throw new NullReferenceException("Entity id 0 represents a null entity");
             }
 
-            if (entities.ContainsKey(ID))
+            if (!entities.ContainsKey(ID))
             {
                 throw new KeyNotFoundException(ID.ToString());
             }
@@ -56,6 +56,7 @@ namespace ZooArchitect.Architecture.Entities
             return entities[ID] as EntityType;
         }
 
+        public IEnumerable<Entity> Entities => FilterEntities<Entity>();
         public IEnumerable<Animal> Animals => FilterEntities<Animal>();
 
         private IEnumerable<EntityType> FilterEntities<EntityType>() where EntityType : Entity

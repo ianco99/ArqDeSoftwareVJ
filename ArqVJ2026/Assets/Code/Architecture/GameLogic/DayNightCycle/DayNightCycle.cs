@@ -13,7 +13,7 @@ namespace ZooArchitect.Architecture.GameLogic
         private int currentStep;
 
         public bool IsPersistance => false;
-
+        //TODO BANANEAR
         private EventBus eventBus => ServiceProvider.Instance.GetService<EventBus>();
         private TaskScheduler taskScheduler => ServiceProvider.Instance.GetService<TaskScheduler>();
         private BlueprintBinder blueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
