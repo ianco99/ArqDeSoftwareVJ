@@ -82,7 +82,7 @@ namespace ZooArchitect.View.Scene
             entitiesContainer.Tick(deltaTime);
             mapView.Tick(deltaTime);
             ContextMenuView.Tick(deltaTime);
-
+            cameraView.Tick(deltaTime);
         }
 
         public Vector3 CoordinateToWorld(Coordinate coordinate)

@@ -19,21 +19,20 @@ namespace ZooArchitect.Architecture
         private Time time => ServiceProvider.Instance.GetService<Time>();
 
         private EntityFactory EntityFactory => ServiceProvider.Instance.GetService<EntityFactory>();
-        private Scene scene;
+        private Scene Scene => ServiceProvider.Instance.GetService<Scene>();
         public Gameplay(string blueprintsPath)
         {
             ServiceProvider.Instance.AddService<EventBus>(new EventBus());
             ServiceProvider.Instance.AddService<BlueprintRegistry>(new BlueprintRegistry(blueprintsPath));
             ServiceProvider.Instance.AddService<BlueprintBinder>(new BlueprintBinder());
             ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
-
-            scene = new Scene();
+            ServiceProvider.Instance.AddService<Scene>(new Scene());
         }
 
 
         public void Init()
         {
-            scene.Init();
+            Scene.Init();
 
             
         }
@@ -41,7 +40,7 @@ namespace ZooArchitect.Architecture
         public void LateInit()
         {
 
-            scene.LateInit();
+            Scene.LateInit();
 
             EventBus.Subscribe<EntityCreatedEvent<Entity>>(NewEntityCreated);
             EventBus.Subscribe<EntityCreatedEvent<Animal>>(NewAnimalCreated);
@@ -55,12 +54,12 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.GetService<Time>();
             time.Tick(deltaTime);
             TaskScheduler.Tick(time.LogicDeltaTime);
-            scene.Tick(deltaTime);
+            Scene.Tick(deltaTime);
         }
 
         public void Dispose()
         {
-            scene.Dispose();
+            Scene.Dispose();
         }
 
         private void NewEntityCreated(in EntityCreatedEvent<Entity> callback)

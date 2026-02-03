@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Data;
+using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.Logs;
 using ZooArchitect.Architecture.Math;
 using ZooArchitect.View.Mapping;
@@ -22,20 +23,23 @@ namespace ZooArchitect.View.Controller
         private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
         private ContextMenuView ContextMenuView => ServiceProvider.Instance.GetService<ContextMenuView>();
 
-        private List<string> animalsBlueprints;
+        private EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
 
         public SpawnEntityControllerView()
         {
-            animalsBlueprints = BlueprintRegistry.BlueprintsOf(TableNames.ANIMALS_TABLE_NAME);
             EventBus.Subscribe<SpawnEntityRequestRejectedEvent>(OnSpawnRejected);
         }
 
 
         public void Tick(float deltaTime)
         {
-            if(Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(1))
             {
                 Coordinate clickPoint = new Coordinate(GameScene.GetMouseGridCoordinate());
+                List<string> animalsBlueprints = EntitiesLogic.ValidEntitiesToSpawnIn(clickPoint);
+                if (animalsBlueprints.Count <= 0)
+                    return;
+
                 Dictionary<string, Action> spawnEntities = new Dictionary<string, Action>();
 
                 for (int i = 0; i < animalsBlueprints.Count; i++)

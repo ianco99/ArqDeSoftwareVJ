@@ -4,14 +4,18 @@ using System;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.GameLogic;
 using ZooArchitect.Architecture.GameLogic.Controllers;
+using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture
 {
-    internal class Scene : IInitable, ITickable, IDisposable
+    internal class Scene : IService, IInitable, ITickable, IDisposable
     {
+        private EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
+
+        public bool IsPersistance => false;
+
         private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
         private Map map;
-
 
 
         public void Init()
@@ -21,23 +25,30 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<Wallet>(new Wallet());
             ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
             ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
+            ServiceProvider.Instance.AddService<EntitiesLogic>(new EntitiesLogic());
         }
 
         public void LateInit()
         {
-            new Map(10, 10);
+            map = new Map(10, 10);
 
             spawnEntityControllerArchitecture = new SpawnEntityControllerArchitecture();
         }
 
         public void Tick(float deltaTime)
         {
-
+            EntitiesLogic.Tick(deltaTime);
         }
 
         public void Dispose()
         {
             spawnEntityControllerArchitecture.Dispose();
+            EntitiesLogic.Dispose();
+        }
+
+        public bool IsCoordinateInsideMap(Coordinate coordinate)
+        {
+            return map.IsCoordinateInsideMap(coordinate);
         }
     }
 }
