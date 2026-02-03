@@ -21,7 +21,7 @@ namespace ZooArchitect.View
 
         [SerializeField] private Canvas gameCanvas;
         private Gameplay gameplay;
-        private ConsoleView consoleView;
+        private GameConsoleView consoleView;
 
         private void Awake()
         {
@@ -37,7 +37,7 @@ namespace ZooArchitect.View
             GameScene gameScene = GameScene.AddSceneComponent<GameScene>("Scene", this.transform);
             ServiceProvider.Instance.AddService<GameScene>(gameScene);
 
-            consoleView = new ConsoleView();
+            consoleView = new GameConsoleView();
 
         }
 

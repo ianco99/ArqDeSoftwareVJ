@@ -4,7 +4,9 @@ using ianco99.ToolBox.Services;
 using System.Collections.Generic;
 using UnityEngine;
 using ZooArchitect.Architecture.GameLogic.Events;
+using ZooArchitect.Architecture.Math;
 using ZooArchitect.View.Data;
+using ZooArchitect.View.Entities;
 using ZooArchitect.View.Resources;
 
 namespace ZooArchitect.View.Scene
@@ -14,6 +16,7 @@ namespace ZooArchitect.View.Scene
         private BlueprintRegistry BlueprintRegiistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
         private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
 
+        private EntityFactoryView EntityFactoryView;
         private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
 
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
@@ -51,19 +54,28 @@ namespace ZooArchitect.View.Scene
 
         private void OnTileCreated(in TileCreatedEvent tileCreatedEvent)
         {
-            string pathToTilePrefab = pathToTilePrefabByIDHash[tileCreatedEvent.tileId].path;
             GameObject tileToSpawn = PrefabsRegistryView.Get(TableNamesView.TILES_VIEW_TABLE_NAME, pathToTilePrefabByIDHash[tileCreatedEvent.tileId].ID);
 
-            UnityEngine.Object.Instantiate(tileToSpawn,
+            SpriteRenderer sprite = UnityEngine.Object.Instantiate(tileToSpawn,
                 grid.CellToLocal(new Vector3Int(tileCreatedEvent.xCoord, tileCreatedEvent.yCoord, 0))
                 + new Vector3(grid.cellSize.x * 0.5f, grid.cellSize.y * 0.5f, 0.0f),
-                Quaternion.identity, grid.gameObject.transform);
+                Quaternion.identity, grid.gameObject.transform).GetComponent<SpriteRenderer>();
+            sprite.sortingOrder = GameScene.MAP_DRAWING_ORDER;
         }
 
         public override void LateInit()
         {
             base.LateInit();
         }
+
+        public Vector3 CoordinateToGrid(Coordinate coordinate)
+        {
+            Vector3Int coord = new Vector3Int(coordinate.Origin.X, coordinate.Origin.Y,0);
+            Vector3 output = grid.GetCellCenterWorld(coord);
+            output.z = 0.0f;
+            return output;
+        }
+
 
         public override void Dispose()
         {
