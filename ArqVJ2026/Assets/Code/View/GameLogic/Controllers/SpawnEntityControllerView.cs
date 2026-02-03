@@ -19,7 +19,7 @@ namespace ZooArchitect.View.Controller
     {
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
-
+        private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
         private ContextMenuView ContextMenuView => ServiceProvider.Instance.GetService<ContextMenuView>();
 
         private List<string> animalsBlueprints;
@@ -35,6 +35,7 @@ namespace ZooArchitect.View.Controller
         {
             if(Input.GetMouseButtonDown(1))
             {
+                Coordinate clickPoint = new Coordinate(GameScene.GetMouseGridCoordinate());
                 Dictionary<string, Action> spawnEntities = new Dictionary<string, Action>();
 
                 for (int i = 0; i < animalsBlueprints.Count; i++)
@@ -42,7 +43,8 @@ namespace ZooArchitect.View.Controller
                     int index = i;
                     spawnEntities.Add($"Spawn {animalsBlueprints[index]}", () =>
                     {
-                        EventBus.Raise<SpawnEntityRequestEvent>(animalsBlueprints[index], new Coordinate(new Point(index, index)));
+
+                        EventBus.Raise<SpawnEntityRequestEvent>(animalsBlueprints[index], clickPoint);
                     });
 
                 }
