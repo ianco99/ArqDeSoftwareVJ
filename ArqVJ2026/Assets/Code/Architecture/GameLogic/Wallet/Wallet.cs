@@ -1,66 +1,66 @@
-﻿using ianco99.ToolBox.Services;
+﻿using ianco99.ToolBox.Events;
+using ianco99.ToolBox.Services;
+using System;
 using System.Collections.Generic;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
-    class Wallet : IService
+    public sealed class Wallet : IService, IDisposable
     {
+        private EventBus EventBus = ServiceProvider.Instance.GetService<EventBus>();
         private readonly Dictionary<string, Resource> resources;
         public bool IsPersistance => false;
 
         public Wallet()
         {
+            EventBus.Subscribe<AddResourceToWalletEvent>(AddResource);
+            EventBus.Subscribe<RemoveResourceToWalletEvent>(RemoveResource);
+
             resources = new Dictionary<string, Resource>();
 
-            AddResource(new Resource("Plata", 0, long.MaxValue, 1000));
-            AddResource(new Resource("Comida de Animales", 0, long.MaxValue, 50));
-            AddResource(new Resource("Comida de Visintes", 0, long.MaxValue, 50));
-            AddResource(new Resource("Limpieza", 0, 100, 100));
-            AddResource(new Resource("Reputación", 0, long.MaxValue, 800));
-            AddResource(new Resource("Trabajadores", 0, 500, 3));
-            AddResource(new Resource("Animales", 0, 500, 0));
+            CreateResource(new Resource("Plata", 0, long.MaxValue, 1000));
+            CreateResource(new Resource("Comida de Animales", 0, long.MaxValue, 50));
+            CreateResource(new Resource("Comida de Visintes", 0, long.MaxValue, 50));
+            CreateResource(new Resource("Limpieza", 0, 100, 100));
+            CreateResource(new Resource("Reputación", 0, long.MaxValue, 800));
+            CreateResource(new Resource("Trabajadores", 0, 500, 3));
+            CreateResource(new Resource("Animales", 0, 500, 0));
 
-            void AddResource(Resource resource)
+            void CreateResource(Resource resource)
             {
                 resources.Add(resource.Name, resource);
             }
         }
 
-    }
-
-    public struct Resource
-    {
-        private string name;
-        private long minValue;
-        private long maxValue;
-        private long startValue;
-        private long currentValue;
-
-        public Resource(string name, long minValue, long maxValue, long startValue)
+        private void RemoveResource(in RemoveResourceToWalletEvent removeResourceToWalletEvent)
         {
-            this.name = name;
-            this.minValue = minValue;
-            this.maxValue = maxValue;
-            this.startValue = startValue;
-            this.currentValue = System.Math.Clamp(startValue, minValue, maxValue);
+            resources[removeResourceToWalletEvent.resourceName].RemoveResource(removeResourceToWalletEvent.amount);
         }
 
-        public string Name => name;
-        public long CurrentValue => currentValue;
-
-        public void AddResource(long amount)
+        private void AddResource(in AddResourceToWalletEvent addResourceToWalletEvent)
         {
-            currentValue = System.Math.Clamp(CurrentValue + amount, minValue, maxValue);
+            resources[addResourceToWalletEvent.resourceName].AddResource(addResourceToWalletEvent.amount);
         }
 
-        public void RemoveResource(long amount)
+        public void AddResource(string resource, long amount)
         {
-            currentValue = System.Math.Clamp(CurrentValue - amount, minValue, maxValue);
+            resources[resource].AddResource(amount);
         }
 
-        public void SetResourceAmount(long amount)
+        internal void RemoveResource(string resource, long amount)
         {
-            currentValue = System.Math.Clamp(amount, minValue, maxValue);
+            resources[resource].RemoveResource(amount);
+        }
+
+        internal bool HasResourceAmount(string resource, long amount)
+        {
+            return resources[resource].CurrentValue >= amount;
+        }
+
+        public void Dispose()
+        {
+            EventBus.UnSubscribe<AddResourceToWalletEvent>(AddResource);
+            EventBus.UnSubscribe<RemoveResourceToWalletEvent>(RemoveResource);
         }
     }
 }

@@ -8,5 +8,15 @@ namespace ZooArchitect.View.Entities
     internal sealed class AnimalView : LivingEntityView
     {
         public override Type ArchitectureEntityType => typeof(Animal);
+
+        internal void OnFeedSuccess()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void OnFeedFail()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

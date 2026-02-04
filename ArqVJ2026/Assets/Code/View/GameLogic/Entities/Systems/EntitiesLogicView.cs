@@ -15,16 +15,32 @@ namespace ZooArchitect.View.Entities
 
         private EntityRegistryView EntityRegistryView => ServiceProvider.Instance.GetService<EntityRegistryView>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
+        private AnimalsLogicView animalsLogicView;
 
         public EntitiesLogicView()
         {
+            animalsLogicView = new AnimalsLogicView();
             EventBus.Subscribe<EntityMovedEvent>(OnEntityMoved);
+            EventBus.Subscribe<OnAnimalFeedSuccess>(AnimalFeedSuccess);
+            EventBus.Subscribe<OnAnimalFeedFail>(AnimalFeedFail);
+        }
+
+        private void AnimalFeedFail(in OnAnimalFeedFail onAnimalFeedFail)
+        {
+            animalsLogicView.OnFeedAnimalFail(onAnimalFeedFail.animalID);
+        }
+
+        private void AnimalFeedSuccess(in OnAnimalFeedSuccess onAnimalFeedSuccess)
+        {
+            animalsLogicView.OnFeedAnimalSuccess(onAnimalFeedSuccess.animalID);
         }
 
         private void OnEntityMoved(in EntityMovedEvent entityMovedEvent)
         {
             EntityRegistryView.GetAs<EntityView>(entityMovedEvent.movedEntityId).
                 Move(EntityRegistry.GetAs<Entity>(entityMovedEvent.movedEntityId).coordinate);
+
+
         }
         public void Init()
         {
@@ -36,12 +52,13 @@ namespace ZooArchitect.View.Entities
 
         public void Tick(float deltaTime)
         {
-
+            animalsLogicView.Tick(deltaTime);
         }
 
         public void Dispose()
         {
             EventBus.UnSubscribe<EntityMovedEvent>(OnEntityMoved);
+            animalsLogicView.Dispose();
         }
 
     }

@@ -11,7 +11,7 @@ namespace ZooArchitect.Architecture
     internal class Scene : IService, IInitable, ITickable, IDisposable
     {
         private EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
-
+        private Wallet Wallet => ServiceProvider.Instance.GetService<Wallet>();
         public bool IsPersistance => false;
 
         private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
@@ -33,6 +33,7 @@ namespace ZooArchitect.Architecture
             map = new Map(10, 10);
 
             spawnEntityControllerArchitecture = new SpawnEntityControllerArchitecture();
+            
         }
 
         public void Tick(float deltaTime)
@@ -44,6 +45,7 @@ namespace ZooArchitect.Architecture
         {
             spawnEntityControllerArchitecture.Dispose();
             EntitiesLogic.Dispose();
+            Wallet.Dispose();
         }
 
         public bool IsCoordinateInsideMap(Coordinate coordinate)

@@ -4,6 +4,7 @@ using ianco99.ToolBox.TaskScheduler;
 using System.Collections.Generic;
 using ianco99.ToolBox.Blueprints;
 using ZooArchitect.Architecture.Data;
+using ZooArchitect.Architecture.GameLogic.Events;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
@@ -42,6 +43,11 @@ namespace ZooArchitect.Architecture.GameLogic
             currentStep += (currentStep + 1) % daySteps.Count;
             taskScheduler.Schedule(ChangeStep, CurrentDayStep.duration);
             eventBus.Raise<DayStepChangeEvent>();
+
+            if(currentStep >= 0)
+            {
+                eventBus.Raise<DayChangeEvent>();
+            }
         }
     }
 
