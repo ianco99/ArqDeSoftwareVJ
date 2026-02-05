@@ -13,32 +13,27 @@ namespace ZooArchitect.View.Entities
 
         public void Init()
         {
-            throw new NotImplementedException();
         }
 
         public void LateInit()
         {
-            throw new NotImplementedException();
         }
 
         public void Tick(float deltaTime)
         {
-            throw new NotImplementedException();
         }
-
         public void Dispose()
         {
-
-        }
-
-        internal void OnFeedAnimalFail(uint animalID)
-        {
-            EntityRegistryView.GetAs<AnimalView>(animalID).OnFeedFail();
         }
 
         internal void OnFeedAnimalSuccess(uint animalID)
         {
             EntityRegistryView.GetAs<AnimalView>(animalID).OnFeedSuccess();
+        }
+
+        internal void OnFeedAnimalFail(uint animalID)
+        {
+            EntityRegistryView.GetAs<AnimalView>(animalID).OnFeedFail();
         }
     }
 }

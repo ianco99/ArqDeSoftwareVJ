@@ -1,6 +1,7 @@
 ﻿using ianco99.ToolBox.DataFlow;
 using ianco99.ToolBox.Services;
 using System;
+using System.Collections.Generic;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.GameLogic;
 using ZooArchitect.Architecture.GameLogic.Controllers;
@@ -8,15 +9,17 @@ using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture
 {
-    internal class Scene : IService, IInitable, ITickable, IDisposable
+    public sealed class Scene : IService, IInitable, ITickable, IDisposable
     {
-        private EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
-        private Wallet Wallet => ServiceProvider.Instance.GetService<Wallet>();
         public bool IsPersistance => false;
 
-        private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
-        private Map map;
+        private EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
 
+        private Wallet Wallet => ServiceProvider.Instance.GetService<Wallet>();
+
+        private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
+
+        private Map map;
 
         public void Init()
         {
@@ -30,10 +33,8 @@ namespace ZooArchitect.Architecture
 
         public void LateInit()
         {
-            map = new Map(10, 10);
-
+            map = new Map(100, 100);
             spawnEntityControllerArchitecture = new SpawnEntityControllerArchitecture();
-            
         }
 
         public void Tick(float deltaTime)
@@ -51,6 +52,31 @@ namespace ZooArchitect.Architecture
         public bool IsCoordinateInsideMap(Coordinate coordinate)
         {
             return map.IsCoordinateInsideMap(coordinate);
+        }
+
+        public List<string> GetValidTilesForSelection(Coordinate coordinate)
+        {
+            List<string> output = new List<string>(map.GetTileDefinitionIDs);
+
+            if (!coordinate.IsSingleCoordinate)
+            {
+                foreach (string uniqueTileDefinition in map.UniqueTileDefinitions)
+                {
+                    output.Remove(uniqueTileDefinition);
+                }
+            }
+            else
+            {
+                foreach (string uniqueTileDefinition in map.UniqueTileDefinitions)
+                {
+                    if (map.HasInstancesOf(uniqueTileDefinition) && map.GetInstanceAmountOf(uniqueTileDefinition) >= 1)
+                    {
+                        output.Remove(uniqueTileDefinition);
+                    }
+                }
+            }
+
+            return output;
         }
     }
 }

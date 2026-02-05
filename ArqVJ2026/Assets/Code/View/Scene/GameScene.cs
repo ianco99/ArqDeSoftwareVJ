@@ -12,26 +12,28 @@ namespace ZooArchitect.View.Scene
     internal sealed class GameScene : ViewComponent, IService
     {
         public bool IsPersistance => false;
+
         public const int MAP_DRAWING_ORDER = 0;
         public const int ENTITIES_DRAWING_ORDER = 1;
 
-        private EntityFactoryView entityFactoryView;
-        private SpawnEntityControllerView spawnEntityControllerView;
-
         private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
         private ContextMenuView ContextMenuView => ServiceProvider.Instance.GetService<ContextMenuView>();
-        private EntitiesLogicView entitiesLogicView;
 
+        private EntityFactoryView entityFactoryView;
+
+        private SpawnEntityControllerView spawnEntityControllerView;
+        private TerrainModifierControllerView terrainModifierControllerView;
 
         private Container mapContainer;
         private Container entitiesContainer;
-
 
         internal Container MapContainer => mapContainer;
         internal Container EntitiesContainer => entitiesContainer;
 
         private MapView mapView;
         private CameraView cameraView;
+        private EntitiesLogicView entitiesLogicView;
+
         public override void Init()
         {
             base.Init();
@@ -69,11 +71,11 @@ namespace ZooArchitect.View.Scene
 
         }
 
-
         public override void LateInit()
         {
             base.LateInit();
             spawnEntityControllerView = new SpawnEntityControllerView();
+            terrainModifierControllerView = new TerrainModifierControllerView();
             mapContainer.LateInit();
             entitiesContainer.LateInit();
             mapView.LateInit();
@@ -83,7 +85,10 @@ namespace ZooArchitect.View.Scene
         public override void Tick(float deltaTime)
         {
             base.Tick(deltaTime);
-            spawnEntityControllerView.Tick(deltaTime);
+
+            //spawnEntityControllerView?.Tick(deltaTime);
+            terrainModifierControllerView?.Tick(deltaTime);
+
             mapContainer.Tick(deltaTime);
             entitiesContainer.Tick(deltaTime);
             mapView.Tick(deltaTime);
@@ -102,10 +107,15 @@ namespace ZooArchitect.View.Scene
             return mapView.GetMouseCoordinateAsPointInGrid(cameraView);
         }
 
+        public Point GetGridCoordinate(Vector3 coordinate)
+        {
+            return mapView.GetCoordinateAsPointInGrid(cameraView, coordinate);
+        }
+
         public override void Dispose()
         {
             base.Dispose();
-            spawnEntityControllerView.Dispose();
+            spawnEntityControllerView?.Dispose();
             entityFactoryView.Dispose();
             mapContainer.Dispose();
             entitiesContainer.Dispose();
@@ -125,13 +135,9 @@ namespace ZooArchitect.View.Scene
 
             GameObject newSceneObject = prefab == null ? new GameObject() : UnityEngine.Object.Instantiate(prefab);
             newSceneObject.name = name;
-
             if (parent != null)
                 newSceneObject.transform.parent = parent;
-
-            ViewComponent component = newSceneObject.AddComponent(viewComponentType) as ViewComponent;
-
-            return component;
+            return newSceneObject.AddComponent(viewComponentType) as ViewComponent;
         }
     }
 }

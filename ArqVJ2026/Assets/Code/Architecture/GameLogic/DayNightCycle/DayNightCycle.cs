@@ -30,7 +30,7 @@ namespace ZooArchitect.Architecture.GameLogic
             foreach (var VARIABLE in blueprintRegistry.BlueprintsOf(TableNames.DAY_NIGHT_CYCLE_TABLE_NAME))
             {
                 object obj = new DayStep();
-                blueprintBinder.Apply(ref obj, "DayNightCycle", VARIABLE);
+                blueprintBinder.Apply(ref obj, TableNames.DAY_NIGHT_CYCLE_TABLE_NAME, VARIABLE);
 
                 daySteps.Add((DayStep)obj);
             }

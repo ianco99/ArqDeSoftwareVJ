@@ -16,7 +16,6 @@ namespace ZooArchitect.View.Scene
         private BlueprintRegistry BlueprintRegiistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
         private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
 
-        private EntityFactoryView EntityFactoryView;
         private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
 
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
@@ -55,8 +54,7 @@ namespace ZooArchitect.View.Scene
         private void OnTileCreated(in TileCreatedEvent tileCreatedEvent)
         {
             GameObject tileToSpawn = PrefabsRegistryView.Get(TableNamesView.TILES_VIEW_TABLE_NAME, pathToTilePrefabByIDHash[tileCreatedEvent.tileId].ID);
-
-            SpriteRenderer sprite = UnityEngine.Object.Instantiate(tileToSpawn,
+            SpriteRenderer sprite = Instantiate(tileToSpawn,
                 grid.CellToLocal(new Vector3Int(tileCreatedEvent.xCoord, tileCreatedEvent.yCoord, 0))
                 + new Vector3(grid.cellSize.x * 0.5f, grid.cellSize.y * 0.5f, 0.0f),
                 Quaternion.identity, grid.gameObject.transform).GetComponent<SpriteRenderer>();
@@ -70,21 +68,25 @@ namespace ZooArchitect.View.Scene
 
         public Vector3 CoordinateToGrid(Coordinate coordinate)
         {
-            Vector3Int coord = new Vector3Int(coordinate.Origin.X, coordinate.Origin.Y,0);
+            Vector3Int coord = new Vector3Int(coordinate.Origin.X, coordinate.Origin.Y, 0);
             Vector3 output = grid.GetCellCenterWorld(coord);
             output.z = 0.0f;
             return output;
         }
 
-        public Point GetMouseCoordinateAsPointInGrid(CameraView cameraView)
+        public Point GetCoordinateAsPointInGrid(CameraView cameraView, Vector3 coordinate)
         {
-            Vector3 mouseScreenPosition = Input.mousePosition;
-            Vector3 mouseWorldPosition = cameraView.GameCamera.ScreenToWorldPoint(mouseScreenPosition);
-            mouseWorldPosition.z = 0.0f;
+            Vector3 mouseScreePosition = coordinate;
+            Vector3 mouseWorldPosition = cameraView.GameCamera.ScreenToWorldPoint(mouseScreePosition);
+            mouseScreePosition.z = 0.0f;
 
             Vector3Int cellCoordinate = grid.WorldToCell(mouseWorldPosition);
-
             return new Point(cellCoordinate.x, cellCoordinate.y);
+        }
+
+        public Point GetMouseCoordinateAsPointInGrid(CameraView cameraView)
+        {
+            return GetCoordinateAsPointInGrid(cameraView, Input.mousePosition);
         }
 
         public override void Dispose()

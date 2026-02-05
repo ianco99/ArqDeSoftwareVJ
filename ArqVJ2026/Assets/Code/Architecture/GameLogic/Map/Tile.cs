@@ -2,11 +2,10 @@
 {
     public struct Tile
     {
-         public int tileType;
-
-        public Tile(int tileType)
+        public int tileTypeId;
+        public Tile(int tileTypeId)
         {
-            this.tileType = tileType;
+            this.tileTypeId = tileTypeId;
         }
     }
 

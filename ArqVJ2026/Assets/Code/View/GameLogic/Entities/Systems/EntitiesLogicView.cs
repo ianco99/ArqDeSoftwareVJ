@@ -15,8 +15,8 @@ namespace ZooArchitect.View.Entities
 
         private EntityRegistryView EntityRegistryView => ServiceProvider.Instance.GetService<EntityRegistryView>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
-        private AnimalsLogicView animalsLogicView;
 
+        private AnimalsLogicView animalsLogicView;
         public EntitiesLogicView()
         {
             animalsLogicView = new AnimalsLogicView();
@@ -25,29 +25,29 @@ namespace ZooArchitect.View.Entities
             EventBus.Subscribe<OnAnimalFeedFail>(AnimalFeedFail);
         }
 
+        private void AnimalFeedSuccess(in OnAnimalFeedSuccess onAnimalFeedSucsess)
+        {
+            animalsLogicView.OnFeedAnimalSuccess(onAnimalFeedSucsess.animalID);
+        }
+
         private void AnimalFeedFail(in OnAnimalFeedFail onAnimalFeedFail)
         {
             animalsLogicView.OnFeedAnimalFail(onAnimalFeedFail.animalID);
-        }
-
-        private void AnimalFeedSuccess(in OnAnimalFeedSuccess onAnimalFeedSuccess)
-        {
-            animalsLogicView.OnFeedAnimalSuccess(onAnimalFeedSuccess.animalID);
         }
 
         private void OnEntityMoved(in EntityMovedEvent entityMovedEvent)
         {
             EntityRegistryView.GetAs<EntityView>(entityMovedEvent.movedEntityId).
                 Move(EntityRegistry.GetAs<Entity>(entityMovedEvent.movedEntityId).coordinate);
-
-
         }
         public void Init()
         {
+            animalsLogicView.Init();
         }
 
         public void LateInit()
         {
+            animalsLogicView.LateInit();
         }
 
         public void Tick(float deltaTime)
@@ -57,8 +57,10 @@ namespace ZooArchitect.View.Entities
 
         public void Dispose()
         {
-            EventBus.UnSubscribe<EntityMovedEvent>(OnEntityMoved);
             animalsLogicView.Dispose();
+            EventBus.UnSubscribe<EntityMovedEvent>(OnEntityMoved);
+            EventBus.UnSubscribe<OnAnimalFeedSuccess>(AnimalFeedSuccess);
+            EventBus.UnSubscribe<OnAnimalFeedFail>(AnimalFeedFail);
         }
 
     }
