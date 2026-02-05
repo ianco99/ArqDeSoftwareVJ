@@ -40,9 +40,9 @@ namespace ZooArchitect.View.Entities
         {
             ViewComponent viewComponent = GameScene.AddSceneComponent(
                ViewToArchitectureMap.ViewOf(EntityRegistry[entityCreatedEvent.entityCreatedId].GetType()),
-               PrefabsRegistryView.Get(TableNamesView.PREFABS_VIEW_TABLE_NAME, entityCreatedEvent.blueprintId).name + $"  -  Architecture type: {EntityRegistry[entityCreatedEvent.entityCreatedId].GetType().Name} - ID: {entityCreatedEvent.entityCreatedId}",
+               PrefabsRegistryView.Get(TableNamesView.ANIMALS_VIEW_TABLE_NAME, entityCreatedEvent.blueprintId).name + $"  -  Architecture type: {EntityRegistry[entityCreatedEvent.entityCreatedId].GetType().Name} - ID: {entityCreatedEvent.entityCreatedId}",
                GameScene.EntitiesContainer.transform,
-               PrefabsRegistryView.Get(TableNamesView.PREFABS_VIEW_TABLE_NAME, entityCreatedEvent.blueprintId));
+               PrefabsRegistryView.Get(TableNamesView.ANIMALS_VIEW_TABLE_NAME, entityCreatedEvent.blueprintId));
 
             viewComponent.transform.position = GameScene.CoordinateToWorld(EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate);
 
