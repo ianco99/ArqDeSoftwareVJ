@@ -1,7 +1,10 @@
 ﻿using ianco99.ToolBox.DataFlow;
+using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using System;
 using System.Collections.Generic;
+using ZooArchitect.Architecture.Controllers;
+using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.GameLogic;
 using ZooArchitect.Architecture.GameLogic.Controllers;
@@ -14,10 +17,12 @@ namespace ZooArchitect.Architecture
         public bool IsPersistance => false;
 
         private EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
-
+        private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private Wallet Wallet => ServiceProvider.Instance.GetService<Wallet>();
 
         private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
+
+        private TerrainModifierControllerArchitecture TerrainModifierControllerArchitecture;
 
         private Map map;
 
@@ -34,7 +39,9 @@ namespace ZooArchitect.Architecture
         public void LateInit()
         {
             map = new Map(100, 100);
+            EventBus.Subscribe<ModifyTerrainRequestAceptedEvent>(OnModifyTerrainRequestAcepted);
             spawnEntityControllerArchitecture = new SpawnEntityControllerArchitecture();
+            TerrainModifierControllerArchitecture = new TerrainModifierControllerArchitecture();
         }
 
         public void Tick(float deltaTime)
@@ -44,6 +51,7 @@ namespace ZooArchitect.Architecture
 
         public void Dispose()
         {
+            EventBus.UnSubscribe<ModifyTerrainRequestAceptedEvent>(OnModifyTerrainRequestAcepted);
             spawnEntityControllerArchitecture.Dispose();
             EntitiesLogic.Dispose();
             Wallet.Dispose();
@@ -77,6 +85,17 @@ namespace ZooArchitect.Architecture
             }
 
             return output;
+        }
+
+        private void OnModifyTerrainRequestAcepted(in ModifyTerrainRequestAceptedEvent modifyTerrainRecuestAceptedEvent)
+        {
+            for (int x = modifyTerrainRecuestAceptedEvent.origin.X; x <= modifyTerrainRecuestAceptedEvent.end.X; x++)
+            {
+                for (int y = modifyTerrainRecuestAceptedEvent.origin.Y; y <= modifyTerrainRecuestAceptedEvent.end.Y; y++)
+                {
+                    map.SwapTile((x, y), modifyTerrainRecuestAceptedEvent.newTileId);
+                }
+            }
         }
     }
 }

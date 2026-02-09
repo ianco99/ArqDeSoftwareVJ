@@ -1,8 +1,10 @@
-﻿using System;
+﻿using ianco99.ToolBox.Services;
+using System;
 using System.Collections.Generic;
+using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Math;
-using ianco99.ToolBox.Services;
 using LogicScene = ZooArchitect.Architecture.Scene;
+
 namespace ZooArchitect.View.Controller
 {
     internal sealed class TerrainModifierControllerView : GroupSelectionControllerView
@@ -21,9 +23,10 @@ namespace ZooArchitect.View.Controller
 
             foreach (string tileID in Scene.GetValidTilesForSelection(selection))
             {
-                validTilesToSwap.Add($"Swap to {tileID}", () =>
+                string currentTileID = tileID;
+                validTilesToSwap.Add($"Swap to {currentTileID}", () =>
                 {
-                    //EventBus.Raise<SpawnEntityRequestEvent>(animalsBlueprints[index], clickPoint);
+                    EventBus.Raise<ModifyTerrainRequestEvent>(selection.Origin, selection.End, currentTileID);
                 });
             }
 

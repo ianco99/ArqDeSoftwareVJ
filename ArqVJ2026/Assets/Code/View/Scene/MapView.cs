@@ -32,6 +32,7 @@ namespace ZooArchitect.View.Scene
 
             EventBus.Subscribe<TileCreatedEvent>(OnTileCreated);
             EventBus.Subscribe<MapCreatedEvent>(OnMapCreated);
+            EventBus.Subscribe<TileModifiedEvent>(OnTileModified);
         }
 
         private void LoadTilePrefabPaths()
@@ -54,8 +55,20 @@ namespace ZooArchitect.View.Scene
         private void OnTileCreated(in TileCreatedEvent tileCreatedEvent)
         {
             GameObject tileToSpawn = PrefabsRegistryView.Get(TableNamesView.TILES_VIEW_TABLE_NAME, pathToTilePrefabByIDHash[tileCreatedEvent.tileId].ID);
+            CreateTile(tileCreatedEvent.tileId, tileCreatedEvent.xCoord, tileCreatedEvent.yCoord);
+        }
+        private void OnTileModified(in TileModifiedEvent tileModifiedEvent)
+        {
+            //TODO: Destroy old
+            CreateTile(tileModifiedEvent.newTileId, tileModifiedEvent.xCoord, tileModifiedEvent.yCoord);
+        }
+
+        private void CreateTile(int tileId, int coordX, int coordY)
+        {
+            GameObject tileToSpawn = PrefabsRegistryView.Get(TableNamesView.TILES_VIEW_TABLE_NAME, pathToTilePrefabByIDHash[tileId].ID);
+
             SpriteRenderer sprite = Instantiate(tileToSpawn,
-                grid.CellToLocal(new Vector3Int(tileCreatedEvent.xCoord, tileCreatedEvent.yCoord, 0))
+                grid.CellToLocal(new Vector3Int(coordX, coordY, 0))
                 + new Vector3(grid.cellSize.x * 0.5f, grid.cellSize.y * 0.5f, 0.0f),
                 Quaternion.identity, grid.gameObject.transform).GetComponent<SpriteRenderer>();
             sprite.sortingOrder = GameScene.MAP_DRAWING_ORDER;
@@ -94,6 +107,7 @@ namespace ZooArchitect.View.Scene
             base.Dispose();
             EventBus.UnSubscribe<TileCreatedEvent>(OnTileCreated);
             EventBus.UnSubscribe<MapCreatedEvent>(OnMapCreated);
+            EventBus.UnSubscribe<TileModifiedEvent>(OnTileModified);
         }
 
         struct TileViewData

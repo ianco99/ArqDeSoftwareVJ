@@ -9,6 +9,7 @@ namespace ZooArchitect.Architecture.Math
 
         public bool IsSingleCoordinate => points.Length == 1;
         public Point Origin => points[0];
+        public Point End => points[^1];
 
         public Coordinate(Point a, Point b)
         {
@@ -36,15 +37,12 @@ namespace ZooArchitect.Architecture.Math
         public Coordinate(int x, int y)
         {
             this = new Coordinate(new Point(x, y));
+            this = new Coordinate(new Point(x, y), new Point(x, y));
         }
 
-        public Coordinate(params Point[] points)
+        public Coordinate(Point point)
         {
-            if (points == null || points.Length == 0)
-            {
-                throw new System.Exception();
-            }
-            this.points = points;
+            this = new Coordinate(point, point);
         }
 
         public void Move(Point offset)

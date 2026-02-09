@@ -114,6 +114,11 @@ namespace ZooArchitect.Architecture.GameLogic
 
             instances[originalTileId].Remove(coordinate);
             instances[newTileId].Add(coordinate);
+
+            grid[coordinate.x, coordinate.y].tileTypeId = newTileId.GetHashCode();
+
+            EventBus.Raise<TileModifiedEvent>(grid[coordinate.x, coordinate.y].tileTypeId,
+                coordinate.x, coordinate.y);
         }
 
         public (uint x, uint y) GetSize() => (sizeX, sizeY);

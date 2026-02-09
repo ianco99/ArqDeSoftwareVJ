@@ -21,8 +21,7 @@ namespace ZooArchitect.View.Scene
 
         private EntityFactoryView entityFactoryView;
 
-        private SpawnEntityControllerView spawnEntityControllerView;
-        private TerrainModifierControllerView terrainModifierControllerView;
+        private ControllerViewStrategy controllerViewStrategy;
 
         private Container mapContainer;
         private Container entitiesContainer;
@@ -74,8 +73,7 @@ namespace ZooArchitect.View.Scene
         public override void LateInit()
         {
             base.LateInit();
-            spawnEntityControllerView = new SpawnEntityControllerView();
-            terrainModifierControllerView = new TerrainModifierControllerView();
+            controllerViewStrategy = new ControllerViewStrategy();
             mapContainer.LateInit();
             entitiesContainer.LateInit();
             mapView.LateInit();
@@ -86,8 +84,7 @@ namespace ZooArchitect.View.Scene
         {
             base.Tick(deltaTime);
 
-            //spawnEntityControllerView?.Tick(deltaTime);
-            terrainModifierControllerView?.Tick(deltaTime);
+            controllerViewStrategy?.Tick(deltaTime);
 
             mapContainer.Tick(deltaTime);
             entitiesContainer.Tick(deltaTime);
@@ -115,7 +112,7 @@ namespace ZooArchitect.View.Scene
         public override void Dispose()
         {
             base.Dispose();
-            spawnEntityControllerView?.Dispose();
+            controllerViewStrategy?.Dispose();
             entityFactoryView.Dispose();
             mapContainer.Dispose();
             entitiesContainer.Dispose();
