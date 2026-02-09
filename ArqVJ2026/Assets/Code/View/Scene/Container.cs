@@ -1,7 +1,23 @@
-﻿namespace ZooArchitect.View.Scene
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+namespace ZooArchitect.View.Scene
 {
     internal sealed class Container : ViewComponent
     {
+        private Dictionary<int, GameObject> instancesPerId;
 
+        public override void Init()
+        {
+            instancesPerId = new Dictionary<int, GameObject>();
+        }
+
+
+        public void Register(GameObject gameObject)
+        {
+            instancesPerId.Add(GetInstanceID(), gameObject);
+        }
+
+        public GameObject this[int instanceId] => instancesPerId[instanceId];
     }
 }

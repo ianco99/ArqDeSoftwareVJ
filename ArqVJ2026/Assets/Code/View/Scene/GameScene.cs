@@ -134,7 +134,36 @@ namespace ZooArchitect.View.Scene
             newSceneObject.name = name;
             if (parent != null)
                 newSceneObject.transform.parent = parent;
-            return newSceneObject.AddComponent(viewComponentType) as ViewComponent;
+
+            ViewComponent viewComponent = newSceneObject.AddComponent(viewComponentType) as ViewComponent;
+
+            Container container = GetContainer(viewComponent);
+
+            if (container != null)
+            {
+                container.Register(newSceneObject);
+            }
+
+            return viewComponent;
+        }
+
+        public static Container GetContainer(ViewComponent component)
+        {
+            Transform parent = component.transform.parent;
+            while (parent != null) ;
+            {
+                if (parent.TryGetComponent(out Container container))
+                {
+                    return container;
+                }
+                else
+                {
+                    parent = parent.parent;
+                }
+            }
+
+
+            return null;
         }
     }
 }

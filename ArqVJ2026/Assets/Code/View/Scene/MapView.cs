@@ -6,7 +6,6 @@ using UnityEngine;
 using ZooArchitect.Architecture.GameLogic.Events;
 using ZooArchitect.Architecture.Math;
 using ZooArchitect.View.Data;
-using ZooArchitect.View.Entities;
 using ZooArchitect.View.Resources;
 
 namespace ZooArchitect.View.Scene
@@ -20,13 +19,20 @@ namespace ZooArchitect.View.Scene
 
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
 
+        private Container container;
+
         private Grid grid;
+
+        private Dictionary<(int x, int y), int> instanceHashPerCoordinate;
         private Dictionary<int, (string ID, string path)> pathToTilePrefabByIDHash;
 
         public override void Init()
         {
             base.Init();
+            instanceHashPerCoordinate = new Dictionary<(int x, int y), int>();
             grid = gameObject.AddComponent<Grid>();
+
+            container = GameScene.GetContainer(this);
 
             LoadTilePrefabPaths();
 
@@ -59,19 +65,34 @@ namespace ZooArchitect.View.Scene
         }
         private void OnTileModified(in TileModifiedEvent tileModifiedEvent)
         {
-            //TODO: Destroy old
+            DestroyTile(tileModifiedEvent.xCoord, tileModifiedEvent.yCoord);
             CreateTile(tileModifiedEvent.newTileId, tileModifiedEvent.xCoord, tileModifiedEvent.yCoord);
+        }
+
+        private void DestroyTile(int coordX, int coordY)
+        {
+            int hashToDestroy = instanceHashPerCoordinate[(coordX, coordY)];
+            Destroy(container[hashToDestroy]);
+            instanceHashPerCoordinate.Remove((coordX, coordY));
         }
 
         private void CreateTile(int tileId, int coordX, int coordY)
         {
             GameObject tileToSpawn = PrefabsRegistryView.Get(TableNamesView.TILES_VIEW_TABLE_NAME, pathToTilePrefabByIDHash[tileId].ID);
 
-            SpriteRenderer sprite = Instantiate(tileToSpawn,
+            GameObject tileInstance = Instantiate(tileToSpawn,
                 grid.CellToLocal(new Vector3Int(coordX, coordY, 0))
                 + new Vector3(grid.cellSize.x * 0.5f, grid.cellSize.y * 0.5f, 0.0f),
-                Quaternion.identity, grid.gameObject.transform).GetComponent<SpriteRenderer>();
-            sprite.sortingOrder = GameScene.MAP_DRAWING_ORDER;
+                Quaternion.identity, grid.gameObject.transform);
+            instanceHashPerCoordinate.Add((coordX, coordY), tileInstance.GetInstanceID());
+
+            container.Register(tileInstance);
+
+            if (tileInstance.TryGetComponent(out SpriteRenderer sprite))
+            {
+                sprite.sortingOrder = GameScene.MAP_DRAWING_ORDER;
+            }
+
         }
 
         public override void LateInit()
