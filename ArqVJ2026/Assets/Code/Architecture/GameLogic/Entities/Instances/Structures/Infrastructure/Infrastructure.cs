@@ -1,4 +1,5 @@
-﻿using ZooArchitect.Architecture.Math;
+﻿using ZooArchitect.Architecture.Logs;
+using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Entities
 {
@@ -6,6 +7,13 @@ namespace ZooArchitect.Architecture.Entities
     {
         private Infrastructure(uint ID, Coordinate coordinate) : base(ID, coordinate)
         {
+        }
+
+        public override void Init()
+        {
+            base.Init();
+
+            GameConsole.Log("LOL");
         }
     }
 }

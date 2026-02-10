@@ -15,13 +15,12 @@ namespace ZooArchitect.View.Entities
     [ViewOf(typeof(EntityFactory))]
     internal sealed class EntityFactoryView : IDisposable
     {
-
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
-        private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
-        private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
         private EntityRegistryView EntityRegistryView => ServiceProvider.Instance.GetService<EntityRegistryView>();
-
         private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
+        private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
+
+        private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
 
         private MethodInfo registerEntityMethod;
         private MethodInfo setEntityIdMethod;
@@ -33,7 +32,8 @@ namespace ZooArchitect.View.Entities
             registerEntityMethod = EntityRegistryView.GetType().GetMethod(EntityRegistryView.RegisterMethodName,
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
-            setEntityIdMethod = typeof(EntityView).GetMethod(EntityView.SetIdMethodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            setEntityIdMethod = typeof(EntityView).GetMethod(EntityView.SetIdMethodName,
+                BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         private void OnEntityCreated(in EntityCreatedEvent<Entity> entityCreatedEvent)
@@ -45,7 +45,6 @@ namespace ZooArchitect.View.Entities
                PrefabsRegistryView.Get(TableNamesView.ANIMALS_VIEW_TABLE_NAME, entityCreatedEvent.blueprintId));
 
             viewComponent.transform.position = GameScene.CoordinateToWorld(EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate);
-
 
             SpriteRenderer sprite = viewComponent.GetComponent<SpriteRenderer>();
             sprite.sortingOrder = GameScene.ENTITIES_DRAWING_ORDER;

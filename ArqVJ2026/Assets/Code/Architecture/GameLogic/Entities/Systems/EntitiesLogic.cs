@@ -13,13 +13,17 @@ namespace ZooArchitect.Architecture.Entities
 {
     public sealed class EntitiesLogic : IService, ITickable, IDisposable
     {
-        public bool IsPersistance => throw new NotImplementedException();
-        private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
-        private Scene Scene => ServiceProvider.Instance.GetService<Scene>();
+        public bool IsPersistance => false;
+
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
+
+        private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
+
+        private Scene Scene => ServiceProvider.Instance.GetService<Scene>();
+
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
 
-        AnimalsLogic animalsLogic;
+        private AnimalsLogic animalsLogic;
 
         public EntitiesLogic()
         {
@@ -27,15 +31,14 @@ namespace ZooArchitect.Architecture.Entities
             EventBus.Subscribe<DayChangeEvent>(OnDayChange);
         }
 
-        private void OnDayChange(in DayChangeEvent callback)
+        private void OnDayChange(in DayChangeEvent _)
         {
             animalsLogic.FeedAnimals();
         }
-           
 
         public void Tick(float deltaTime)
         {
-            foreach (Entity entity  in EntityRegistry.Animals)
+            foreach (Entity entity in EntityRegistry.Entities)
             {
                 entity.Tick(deltaTime);
             }
@@ -50,10 +53,15 @@ namespace ZooArchitect.Architecture.Entities
 
         public List<string> ValidAnimalsToSpawnIn(Coordinate coordinate)
         {
-            if(Scene.IsCoordinateInsideMap(coordinate))
-            {
+            if (Scene.IsCoordinateInsideMap(coordinate))
                 return BlueprintRegistry.BlueprintsOf(TableNames.ANIMALS_TABLE_NAME);
-            }
+            return new List<string>();
+        }
+
+        public List<string> ValidInfrastructuresToSpawnIn(Coordinate coordinate)
+        {
+            if (Scene.IsCoordinateInsideMap(coordinate))
+                return BlueprintRegistry.BlueprintsOf(TableNames.INFRASTRUCTURE_TABLE_NAME);
             return new List<string>();
         }
     }

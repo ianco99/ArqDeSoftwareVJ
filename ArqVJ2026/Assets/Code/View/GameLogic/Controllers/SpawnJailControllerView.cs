@@ -7,7 +7,7 @@ using ZooArchitect.View.Mapping;
 namespace ZooArchitect.View.Controller
 {
     [ViewOf(typeof(SpawnJailControllerArchitecture))]
-    internal abstract class SpawnJailControllerView : GroupSelectionControllerView
+    internal sealed class SpawnJailControllerView : GroupSelectionControllerView
     {
         public SpawnJailControllerView()
         {

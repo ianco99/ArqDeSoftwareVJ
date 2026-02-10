@@ -10,12 +10,12 @@ namespace ZooArchitect.View.Scene
         private const bool MOUSE_CONTROLS = false;
 #endif
 
-        private const float MOVE_SPEED = 15.0f;
+        private const float MOVE_SPEED = 10.0f;
         private const float SMOOTH_TIME = 0.15f;
         private const float EDGE_SIZE = 20.0f;
 
         private Vector3 velocity;
-        private Vector3 targetVelocity;
+        private Vector3 targetPosition;
 
         private Camera gameCamera;
 
@@ -31,28 +31,26 @@ namespace ZooArchitect.View.Scene
         public override void Tick(float deltaTime)
         {
             Vector3 mousePosition = Input.mousePosition;
-            Vector3 direction = Vector3.zero;
+            Vector3 diretion = Vector3.zero;
 
             if (Input.GetKey(KeyCode.LeftArrow) || (MOUSE_CONTROLS && mousePosition.x <= EDGE_SIZE))
-                direction.x = -1.0f;
-            else if (Input.GetKey(KeyCode.LeftArrow) || (MOUSE_CONTROLS && mousePosition.x >= (Screen.width - EDGE_SIZE)))
-                direction.x = 1.0f;
+                diretion.x = -1.0f;
+            else if (Input.GetKey(KeyCode.RightArrow) || (MOUSE_CONTROLS && mousePosition.x >= (Screen.width - EDGE_SIZE)))
+                diretion.x = 1.0f;
 
-            if (Input.GetKey(KeyCode.LeftArrow) || (MOUSE_CONTROLS && mousePosition.y <= EDGE_SIZE))
-                direction.y = -1.0f;
-            else if (Input.GetKey(KeyCode.LeftArrow) || (MOUSE_CONTROLS && mousePosition.y >= (Screen.height - EDGE_SIZE)))
-                direction.y = 1.0f;
+            if (Input.GetKey(KeyCode.DownArrow) || (MOUSE_CONTROLS && mousePosition.y <= EDGE_SIZE))
+                diretion.y = -1.0f;
+            else if (Input.GetKey(KeyCode.UpArrow) || (MOUSE_CONTROLS && mousePosition.y >= (Screen.height - EDGE_SIZE)))
+                diretion.y = 1.0f;
 
-            if (direction.sqrMagnitude > 0.0f)
+            if (diretion.sqrMagnitude > 0.0f)
             {
-                direction.Normalize();
-                targetVelocity += direction * MOVE_SPEED * deltaTime;
+                diretion.Normalize();
+                targetPosition += diretion * MOVE_SPEED * deltaTime;
             }
 
-            targetVelocity.z = 0.0f; 
-            Vector3 newPos = Vector3.SmoothDamp(transform.position, targetVelocity, ref velocity, SMOOTH_TIME);
-            newPos.z = -10;
-            transform.position = newPos;
+            targetPosition.z = -1.0f;
+            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, SMOOTH_TIME);
         }
     }
 }

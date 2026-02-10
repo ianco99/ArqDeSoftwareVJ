@@ -17,22 +17,19 @@ namespace ZooArchitect.Architecture.Entities
             entityIdsPerType = new Dictionary<Type, List<uint>>();
         }
 
-
         public Entity this[uint ID] => entities[ID];
+
         internal string RegisterMethodName => nameof(Register);
 
         private void Register(Entity entity)
         {
             entities.Add(entity.ID, entity);
             Type currentEntityType = null;
-
             do
             {
                 currentEntityType = currentEntityType == null ? entity.GetType() : currentEntityType.BaseType;
                 if (!entityIdsPerType.ContainsKey(currentEntityType))
-                {
                     entityIdsPerType.Add(currentEntityType, new List<uint>());
-                }
                 entityIdsPerType[currentEntityType].Add(entity.ID);
             } while (currentEntityType != typeof(Entity));
         }
@@ -48,18 +45,27 @@ namespace ZooArchitect.Architecture.Entities
             {
                 throw new KeyNotFoundException(ID.ToString());
             }
+
             if (entities[ID] is not EntityType)
             {
-                throw new InvalidCastException($"An attempt was made to obtain a type {entities[ID].GetType().Name}" + $"entity as type {typeof(EntityType).Name} from the EntityRegistry"); ;
+                throw new InvalidCastException($"An attempt was made to obtain a type {entities[ID].GetType().Name}"
+                                             + $"entity as type {typeof(EntityType).Name} from the EntityRegistry");
             }
 
             return entities[ID] as EntityType;
         }
 
         public IEnumerable<Entity> Entities => FilterEntities<Entity>();
+        public IEnumerable<Structure> Structures => FilterEntities<Structure>();
+        public IEnumerable<Jail> Jails => FilterEntities<Jail>();
+        public IEnumerable<Infrastructure> Infrastructures => FilterEntities<Infrastructure>();
+        public IEnumerable<LivingEntity> LivingEntities => FilterEntities<LivingEntity>();
         public IEnumerable<Animal> Animals => FilterEntities<Animal>();
+        public IEnumerable<Human> Humans => FilterEntities<Human>();
+        public IEnumerable<Worker> Workers => FilterEntities<Worker>();
+        public IEnumerable<Visitor> Visitors => FilterEntities<Visitor>();
 
-        private IEnumerable<EntityType> FilterEntities<EntityType>() where EntityType : Entity
+        public IEnumerable<EntityType> FilterEntities<EntityType>() where EntityType : Entity
         {
             if (entityIdsPerType.ContainsKey(typeof(EntityType)))
             {

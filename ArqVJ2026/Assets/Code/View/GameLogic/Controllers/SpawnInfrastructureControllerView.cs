@@ -1,49 +1,49 @@
 ﻿using ianco99.ToolBox.Events;
 using System;
 using System.Collections.Generic;
+using ZooArchitect.Architecture.Controllers;
 using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Logs;
 using ZooArchitect.Architecture.Math;
+using ZooArchitect.View.Mapping;
 
 namespace ZooArchitect.View.Controller
 {
+    [ViewOf(typeof(SpawnInfrastructureControllerArchitecture))]
     internal sealed class SpawnInfrastructureControllerView : SingleSelectionControllerView
     {
         public SpawnInfrastructureControllerView()
         {
-            EventBus.Subscribe<SpawnInfrastructureRequestEvent>(OnSpawnInfrastructureRejected);
-        }
-
-        private void OnSpawnInfrastructureRejected(in SpawnInfrastructureRequestEvent spawnInstrasftructureRequestRejectedEvent)
-        {
+            EventBus.Subscribe<SpawnInfrastructureRequestRejectedEvent >(OnSpawnRejected);
 
         }
-
-        protected override Dictionary<string, Action> GetActionsToDsiplay(Coordinate clickPoint, List<string> blueprints)
+        protected override List<string> GetValidBlueprints(Coordinate clickPoint)
         {
-            Dictionary<string, Action> spawnEntities = new Dictionary<string, Action>();
+            return EntitiesLogic.ValidInfrastructuresToSpawnIn(clickPoint);
+        }
+
+        protected override Dictionary<string, Action> GetActionsToDisplay(Coordinate clickPoint, List<string> blueprints)
+        {
+            Dictionary<string, Action> buildInfrastructures = new Dictionary<string, Action>();
             for (int i = 0; i < blueprints.Count; i++)
             {
                 int index = i;
-                spawnEntities.Add($"Build {blueprints[index]}", () =>
+                buildInfrastructures.Add($"Build {blueprints[index]}", () =>
                 {
                     EventBus.Raise<SpawnInfrastructureRequestEvent>(blueprints[index], clickPoint);
                 });
             }
-
-            return spawnEntities;
+            return buildInfrastructures;
         }
 
-        protected override List<string> GetValidBlueprints(Coordinate clickpoint)
+        private void OnSpawnRejected(in SpawnInfrastructureRequestRejectedEvent  spawnInfrastructureRequestRejectedEvent)
         {
-            return new List<string>();
+            GameConsole.Warning($"Build of {spawnInfrastructureRequestRejectedEvent.blueprintToSpawn} in {spawnInfrastructureRequestRejectedEvent.coordinateToSpawn} rejected");
         }
 
         public override void Dispose()
         {
-            EventBus.UnSubscribe<SpawnInfrastructureRequestEvent>(OnSpawnInfrastructureRejected);
+            EventBus.UnSubscribe<SpawnInfrastructureRequestRejectedEvent>(OnSpawnRejected);
         }
-
-
     }
 }

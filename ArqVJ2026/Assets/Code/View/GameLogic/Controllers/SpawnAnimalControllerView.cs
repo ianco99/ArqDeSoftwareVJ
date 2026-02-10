@@ -20,12 +20,12 @@ namespace ZooArchitect.View.Controller
             EventBus.Subscribe<SpawnAnimalRequestRejectedEvent>(OnSpawnRejected);
         }
 
-        public override void CreateController()
+        protected override List<string> GetValidBlueprints(Coordinate clickPoint)
         {
-            
+            return EntitiesLogic.ValidAnimalsToSpawnIn(clickPoint);
         }
 
-        protected override Dictionary<string, Action> GetActionsToDsiplay(Coordinate clickPoint, List<string> blueprints)
+        protected override Dictionary<string, Action> GetActionsToDisplay(Coordinate clickPoint, List<string> blueprints)
         {
             Dictionary<string, Action> spawnEntities = new Dictionary<string, Action>();
             for (int i = 0; i < blueprints.Count; i++)
@@ -36,18 +36,12 @@ namespace ZooArchitect.View.Controller
                     EventBus.Raise<SpawnAnimalRequestEvent>(blueprints[index], clickPoint);
                 });
             }
-
             return spawnEntities;
         }
 
-        protected override List<string> GetValidBlueprints(Point clickPoint)
+        private void OnSpawnRejected(in SpawnAnimalRequestRejectedEvent spawnEntityRequestRejectedEvent)
         {
-            return EntitiesLogic.ValidAnimalsToSpawnIn(clickPoint);
-        }
-
-        private void OnSpawnRejected(in SpawnAnimalRequestRejectedEvent spawnAnimalRequestRejectedEvent)
-        {
-            GameConsole.Warning($"Spawn of {spawnAnimalRequestRejectedEvent.blueprintToSpawn} in {spawnAnimalRequestRejectedEvent.coordinateToSpawn} rejected");
+            GameConsole.Warning($"Spawn of {spawnEntityRequestRejectedEvent.blueprintToSpawn} in {spawnEntityRequestRejectedEvent.coordinateToSpawn} rejected");
         }
 
         public override void Dispose()
@@ -55,4 +49,5 @@ namespace ZooArchitect.View.Controller
             EventBus.UnSubscribe<SpawnAnimalRequestRejectedEvent>(OnSpawnRejected);
         }
     }
+
 }

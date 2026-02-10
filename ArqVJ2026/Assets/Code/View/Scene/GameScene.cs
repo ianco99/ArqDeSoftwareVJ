@@ -16,11 +16,11 @@ namespace ZooArchitect.View.Scene
         public const int MAP_DRAWING_ORDER = 0;
         public const int ENTITIES_DRAWING_ORDER = 1;
 
-        public const string MAP_CONTAINER_NAME= "Map container";
-        public const string ENTITIES_CONTAINER_NAME = "Entities container";
-        public const string CAMERA_NAME = "Main Game Camera";
-        public const string MAP_NAME = "Map";
-        public const string CONTEXT_MENU_VIEW_NAME = "ContextMenu";
+        private const string MAP_CONTAINER_NAME = "Map container";
+        private const string ENTITIES_CINTAINER_NAME = "Entities container";
+        private const string CAMERA_NAME = "Main Game Camera";
+        private const string MAP_NAME = "Map";
+        private const string CONTECT_MENU_VIEW_NAME = "ContextMenu";
 
         private const string CAMERA_PREFAB_NAME = "GameCamera";
         private const string CONTEXT_MENU_PREFAB_NAME = "ContextMenuContainer";
@@ -51,7 +51,7 @@ namespace ZooArchitect.View.Scene
 
             mapContainer = GameScene.AddSceneComponent<Container>(MAP_CONTAINER_NAME, this.transform);
             mapContainer.Init();
-            entitiesContainer = GameScene.AddSceneComponent<Container>(ENTITIES_CONTAINER_NAME, this.transform);
+            entitiesContainer = GameScene.AddSceneComponent<Container>(ENTITIES_CINTAINER_NAME, this.transform);
             entitiesContainer.Init();
 
             mapView = GameScene.AddSceneComponent<MapView>(MAP_NAME, MapContainer.transform);
@@ -69,7 +69,7 @@ namespace ZooArchitect.View.Scene
             GameObject contextMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, CONTEXT_MENU_PREFAB_NAME);
             GameObject buttonMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, CONTEXT_MENU_BUTTON_PREFAB_NAME);
 
-            ContextMenuView contextMenuView = GameScene.AddSceneComponent<ContextMenuView>(CONTEXT_MENU_VIEW_NAME, canvasView.transform, contextMenuPrefab);
+            ContextMenuView contextMenuView = GameScene.AddSceneComponent<ContextMenuView>(CONTECT_MENU_VIEW_NAME, canvasView.transform, contextMenuPrefab);
             ServiceProvider.Instance.AddService<ContextMenuView>(contextMenuView);
             contextMenuView.Init(contextMenuPrefab, buttonMenuPrefab, canvasView);
 
@@ -146,13 +146,10 @@ namespace ZooArchitect.View.Scene
                 newSceneObject.transform.parent = parent;
 
             ViewComponent viewComponent = newSceneObject.AddComponent(viewComponentType) as ViewComponent;
-
             Container container = GetContainer(viewComponent);
 
             if (container != null)
-            {
                 container.Register(newSceneObject);
-            }
 
             return viewComponent;
         }
@@ -160,18 +157,14 @@ namespace ZooArchitect.View.Scene
         public static Container GetContainer(ViewComponent component)
         {
             Transform parent = component.transform.parent;
-            while (parent != null) ;
-            {
-                if (parent.TryGetComponent(out Container container))
-                {
-                    return container;
-                }
-                else
-                {
-                    parent = parent.parent;
-                }
-            }
 
+            while (parent != null)
+            {
+                if (parent.gameObject.TryGetComponent(out Container container))
+                    return container;
+                else
+                    parent = parent.parent;
+            }
 
             return null;
         }

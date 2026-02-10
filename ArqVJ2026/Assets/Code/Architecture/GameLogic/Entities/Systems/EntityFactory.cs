@@ -15,7 +15,9 @@ namespace ZooArchitect.Architecture.Entities
     {
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
+
         private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
+
         private uint lastAssignedEntityId;
         public bool IsPersistance => false;
 
@@ -25,15 +27,11 @@ namespace ZooArchitect.Architecture.Entities
 
         public EntityFactory()
         {
-            this.lastAssignedEntityId = Entity.UNASSIGNED_ENTITY_ID + 1;
+            this.lastAssignedEntityId = Entity.UNASSIGNED_ENTITY_ID;
             entityConstructors = new Dictionary<Type, ConstructorInfo>();
 
-            if (EntityRegistry == null)
-            {
-                throw new NullReferenceException("Accessed Registry before creation");
-            }
-
-            registerEntityMethod = EntityRegistry.GetType().GetMethod(EntityRegistry.RegisterMethodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            registerEntityMethod = EntityRegistry.GetType().GetMethod(EntityRegistry.RegisterMethodName,
+                BindingFlags.NonPublic | BindingFlags.Instance);
 
             raiseEntityCreatedMethod = GetType().GetMethod(nameof(RaiseEntityCreated), BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -41,16 +39,23 @@ namespace ZooArchitect.Architecture.Entities
 
             EventBus.Subscribe<SpawnAnimalRequestAcceptedEvent>(SpawnAnimal);
             EventBus.Subscribe<SpawnJailRequestAcceptedEvent>(SpawnJail);
+            EventBus.Subscribe<SpawnInfrastructureRequestAcceptedEvent>(SpawnInfrastrcture);
         }
 
-        private void SpawnJail(in SpawnJailRequestAcceptedEvent spawnEntityRequestAcceptedEvent)
+        private void SpawnInfrastrcture(in SpawnInfrastructureRequestAcceptedEvent spawnInfrastructureRequestAcceptedEvent)
         {
-            //TODO: Create jail
+            //Todo create infrastructure
+            CreateInstance<Infrastructure>(spawnInfrastructureRequestAcceptedEvent.blueprintToSpawn, spawnInfrastructureRequestAcceptedEvent.coordinateToSpawn);
         }
 
-        private void SpawnAnimal(in SpawnAnimalRequestAcceptedEvent spawnAnimalRequestAcceptedEvent)
+        private void SpawnJail(in SpawnJailRequestAcceptedEvent spawnJailRequestAcceptedEvent)
         {
-            CreateInstance<Animal>(spawnAnimalRequestAcceptedEvent.blueprintToSpawn, spawnAnimalRequestAcceptedEvent.coordinateToSpawn);
+            //Todo create Jail
+        }
+
+        private void SpawnAnimal(in SpawnAnimalRequestAcceptedEvent spawnAnimalRequestAceptedEvent)
+        {
+            CreateInstance<Animal>(spawnAnimalRequestAceptedEvent.blueprintToSpawn, spawnAnimalRequestAceptedEvent.coordinateToSpawn);
         }
 
         public void CreateInstance<EntityType>(string blueprintId, Coordinate coordinate) where EntityType : Entity
@@ -59,20 +64,16 @@ namespace ZooArchitect.Architecture.Entities
             uint newEntityId = lastAssignedEntityId;
 
             if (!entityConstructors.ContainsKey(typeof(EntityType)))
-            {
                 throw new MissingMethodException($"Missing constructor for {typeof(EntityType).Name}");
-            }
 
             object newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate });
 
             BlueprintBinder.Apply(ref newEntity, TableNames.ANIMALS_TABLE_NAME, blueprintId);
 
-            (newEntity as Entity).Init();
+            (newEntity as EntityType).Init();
 
             if (registerEntityMethod == null)
-            {
                 throw new MissingMethodException($"Missing EntityRegistry register method");
-            }
 
             registerEntityMethod.Invoke(EntityRegistry, new object[] { newEntity });
 
@@ -87,10 +88,10 @@ namespace ZooArchitect.Architecture.Entities
 
             for (int i = entityTypes.Count - 1; i >= 0; i--)
             {
-                raiseEntityCreatedMethod.MakeGenericMethod(entityTypes[i]).Invoke(this, new object[] {blueprintId, newEntity });
+                raiseEntityCreatedMethod.MakeGenericMethod(entityTypes[i]).Invoke(this, new object[] { blueprintId, newEntity });
             }
 
-            (newEntity as Entity).LateInit();
+            (newEntity as EntityType).LateInit();
         }
 
         private void RaiseEntityCreated<EntityType>(string blueprintId, EntityType newEntity) where EntityType : Entity
@@ -131,8 +132,7 @@ namespace ZooArchitect.Architecture.Entities
         {
             EventBus.UnSubscribe<SpawnAnimalRequestAcceptedEvent>(SpawnAnimal);
             EventBus.UnSubscribe<SpawnJailRequestAcceptedEvent>(SpawnJail);
-
+            EventBus.UnSubscribe<SpawnInfrastructureRequestAcceptedEvent>(SpawnInfrastrcture);
         }
     }
-
 }

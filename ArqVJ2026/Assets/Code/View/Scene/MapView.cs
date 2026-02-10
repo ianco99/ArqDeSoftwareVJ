@@ -24,6 +24,7 @@ namespace ZooArchitect.View.Scene
         private Grid grid;
 
         private Dictionary<(int x, int y), int> instanceHashPerCoordinate;
+
         private Dictionary<int, (string ID, string path)> pathToTilePrefabByIDHash;
 
         public override void Init()
@@ -31,7 +32,6 @@ namespace ZooArchitect.View.Scene
             base.Init();
             instanceHashPerCoordinate = new Dictionary<(int x, int y), int>();
             grid = gameObject.AddComponent<Grid>();
-
             container = GameScene.GetContainer(this);
 
             LoadTilePrefabPaths();
@@ -60,7 +60,6 @@ namespace ZooArchitect.View.Scene
 
         private void OnTileCreated(in TileCreatedEvent tileCreatedEvent)
         {
-            GameObject tileToSpawn = PrefabsRegistryView.Get(TableNamesView.TILES_VIEW_TABLE_NAME, pathToTilePrefabByIDHash[tileCreatedEvent.tileId].ID);
             CreateTile(tileCreatedEvent.tileId, tileCreatedEvent.xCoord, tileCreatedEvent.yCoord);
         }
         private void OnTileModified(in TileModifiedEvent tileModifiedEvent)
@@ -79,7 +78,6 @@ namespace ZooArchitect.View.Scene
         private void CreateTile(int tileId, int coordX, int coordY)
         {
             GameObject tileToSpawn = PrefabsRegistryView.Get(TableNamesView.TILES_VIEW_TABLE_NAME, pathToTilePrefabByIDHash[tileId].ID);
-
             GameObject tileInstance = Instantiate(tileToSpawn,
                 grid.CellToLocal(new Vector3Int(coordX, coordY, 0))
                 + new Vector3(grid.cellSize.x * 0.5f, grid.cellSize.y * 0.5f, 0.0f),
@@ -89,10 +87,7 @@ namespace ZooArchitect.View.Scene
             container.Register(tileInstance);
 
             if (tileInstance.TryGetComponent(out SpriteRenderer sprite))
-            {
                 sprite.sortingOrder = GameScene.MAP_DRAWING_ORDER;
-            }
-
         }
 
         public override void LateInit()

@@ -25,17 +25,17 @@ namespace ZooArchitect.View
 
         private void Awake()
         {
-            if(gameCanvas == null)
+            if (gameCanvas == null)
                 throw new MissingComponentException("Missing canvas!");
+
 
             ViewToArchitectureMap.Init();
 
             gameplay = new Gameplay(BlueprintsPath);
-
             ServiceProvider.Instance.AddService<PrefabsRegistryView>(new PrefabsRegistryView());
 
-            GameScene gameScene = GameScene.AddSceneComponent<GameScene>("Scene", this.transform);
-            ServiceProvider.Instance.AddService<GameScene>(gameScene);
+            ServiceProvider.Instance.AddService<GameScene>
+                (GameScene.AddSceneComponent<GameScene>("Scene", this.transform));
 
             consoleView = new GameConsoleView();
 

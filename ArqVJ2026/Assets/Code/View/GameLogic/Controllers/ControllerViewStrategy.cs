@@ -19,9 +19,9 @@ namespace ZooArchitect.View.Controller
         new Dictionary<KeyCode, Type>()
         {
             {KeyCode.Alpha1, typeof(SpawnAnimalControllerView) },
-            {KeyCode.Alpha3, typeof(SpawnJailControllerView) },
-            {KeyCode.Alpha2, typeof(TerrainModifierControllerView) },
-            {KeyCode.Alpha4, typeof(SpawnInfrastructureControllerView) },
+            {KeyCode.Alpha2, typeof(SpawnInfrastructureControllerView) },
+            {KeyCode.Alpha3, typeof(TerrainModifierControllerView) },
+            {KeyCode.Alpha4, typeof(SpawnJailControllerView) },
         };
 
         public ControllerViewStrategy()
@@ -29,7 +29,7 @@ namespace ZooArchitect.View.Controller
             controllers = new Dictionary<Type, ControllerView>();
             currentStrategyType = typeof(SpawnAnimalControllerView);
             controllers.Add(typeof(SpawnAnimalControllerView), new SpawnAnimalControllerView());
-            controllers.Add(typeof(SpawnJailControllerView), new SpawnInfrastructureControllerView());
+            controllers.Add(typeof(SpawnInfrastructureControllerView), new SpawnInfrastructureControllerView());
             controllers.Add(typeof(SpawnJailControllerView), new SpawnJailControllerView());
             controllers.Add(typeof(TerrainModifierControllerView), new TerrainModifierControllerView());
         }
@@ -45,7 +45,6 @@ namespace ZooArchitect.View.Controller
             }
 
             controllers[currentStrategyType].Tick(deltaTime);
-
         }
 
         public void Dispose()
