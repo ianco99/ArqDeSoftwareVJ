@@ -16,6 +16,16 @@ namespace ZooArchitect.View.Scene
         public const int MAP_DRAWING_ORDER = 0;
         public const int ENTITIES_DRAWING_ORDER = 1;
 
+        public const string MAP_CONTAINER_NAME= "Map container";
+        public const string ENTITIES_CONTAINER_NAME = "Entities container";
+        public const string CAMERA_NAME = "Main Game Camera";
+        public const string MAP_NAME = "Map";
+        public const string CONTEXT_MENU_VIEW_NAME = "ContextMenu";
+
+        private const string CAMERA_PREFAB_NAME = "GameCamera";
+        private const string CONTEXT_MENU_PREFAB_NAME = "ContextMenuContainer";
+        private const string CONTEXT_MENU_BUTTON_PREFAB_NAME = "ButtonPrefab";
+
         private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
         private ContextMenuView ContextMenuView => ServiceProvider.Instance.GetService<ContextMenuView>();
 
@@ -39,12 +49,12 @@ namespace ZooArchitect.View.Scene
             ServiceProvider.Instance.AddService<EntityRegistryView>(new EntityRegistryView());
             entityFactoryView = new EntityFactoryView();
 
-            mapContainer = GameScene.AddSceneComponent<Container>("Map container", this.transform);
+            mapContainer = GameScene.AddSceneComponent<Container>(MAP_CONTAINER_NAME, this.transform);
             mapContainer.Init();
-            entitiesContainer = GameScene.AddSceneComponent<Container>("Entities container", this.transform);
+            entitiesContainer = GameScene.AddSceneComponent<Container>(ENTITIES_CONTAINER_NAME, this.transform);
             entitiesContainer.Init();
 
-            mapView = GameScene.AddSceneComponent<MapView>("Map", MapContainer.transform);
+            mapView = GameScene.AddSceneComponent<MapView>(MAP_NAME, MapContainer.transform);
             mapView.Init();
 
             entitiesLogicView = new EntitiesLogicView();
@@ -56,16 +66,16 @@ namespace ZooArchitect.View.Scene
             base.Init(parameters);
             Canvas canvasView = parameters[0] as Canvas;
 
-            GameObject contextMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, "ContextMenuContainer");
-            GameObject buttonMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, "ButtonPrefab");
+            GameObject contextMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, CONTEXT_MENU_PREFAB_NAME);
+            GameObject buttonMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, CONTEXT_MENU_BUTTON_PREFAB_NAME);
 
-            ContextMenuView contextMenuView = GameScene.AddSceneComponent<ContextMenuView>("ContextMenu", canvasView.transform, contextMenuPrefab);
+            ContextMenuView contextMenuView = GameScene.AddSceneComponent<ContextMenuView>(CONTEXT_MENU_VIEW_NAME, canvasView.transform, contextMenuPrefab);
             ServiceProvider.Instance.AddService<ContextMenuView>(contextMenuView);
             contextMenuView.Init(contextMenuPrefab, buttonMenuPrefab, canvasView);
 
-            GameObject cameraPrefab = PrefabsRegistryView.Get(TableNamesView.CAMERA_VIEW_TABLE_NAME, "GameCamera");
+            GameObject cameraPrefab = PrefabsRegistryView.Get(TableNamesView.CAMERA_VIEW_TABLE_NAME, CAMERA_PREFAB_NAME);
 
-            cameraView = GameScene.AddSceneComponent<CameraView>("Main Game Camera", null, cameraPrefab);
+            cameraView = GameScene.AddSceneComponent<CameraView>(CAMERA_NAME, null, cameraPrefab);
             cameraView.Init(cameraView.GetComponent<Camera>());
 
         }

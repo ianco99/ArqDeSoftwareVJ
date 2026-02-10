@@ -6,40 +6,40 @@ using ZooArchitect.Architecture.Entities;
 
 namespace ZooArchitect.Architecture.GameLogic.Controllers
 {
-    public sealed class SpawnEntityControllerArchitecture : IDisposable
+    public sealed class SpawnAnimalControllerArchitecture : IDisposable
     {
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
-        public SpawnEntityControllerArchitecture()
+        public SpawnAnimalControllerArchitecture()
         {
-            EventBus.Subscribe<SpawnEntityRequestEvent>(RequestSpawnEntity);
+            EventBus.Subscribe<SpawnAnimalRequestEvent>(RequestAnimalEntity);
         }
 
-        private void RequestSpawnEntity(in SpawnEntityRequestEvent spawnEntityRequestEvent)
+        private void RequestAnimalEntity(in SpawnAnimalRequestEvent spawnAnimalRequestEvent)
         {
             bool collides = false;
             foreach (Animal animal in EntityRegistry.Animals)
             {
-                if(animal.coordinate.Origin == spawnEntityRequestEvent.coordinateToSpawn.Origin)
+                if (animal.coordinate.Origin == spawnAnimalRequestEvent.coordinateToSpawn.Origin)
                 {
                     collides = true;
                     break;
                 }
             }
 
-            if(collides)
+            if (collides)
             {
-                EventBus.Raise<SpawnEntityRequestRejectedEvent>(spawnEntityRequestEvent.blueprintToSpawn, spawnEntityRequestEvent.coordinateToSpawn);
+                EventBus.Raise<SpawnAnimalRequestRejectedEvent>(spawnAnimalRequestEvent.blueprintToSpawn, spawnAnimalRequestEvent.coordinateToSpawn);
             }
             else
             {
-                EventBus.Raise<SpawnEntityRequestAcceptedEvent>(spawnEntityRequestEvent.blueprintToSpawn, spawnEntityRequestEvent.coordinateToSpawn);
+                EventBus.Raise<SpawnAnimalRequestAcceptedEvent>(spawnAnimalRequestEvent.blueprintToSpawn, spawnAnimalRequestEvent.coordinateToSpawn);
             }
         }
 
         public void Dispose()
         {
-            EventBus.UnSubscribe<SpawnEntityRequestEvent>(RequestSpawnEntity);
+            EventBus.UnSubscribe<SpawnAnimalRequestEvent>(RequestAnimalEntity);
         }
     }
 }

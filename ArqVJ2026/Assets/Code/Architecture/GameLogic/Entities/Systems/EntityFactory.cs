@@ -39,12 +39,18 @@ namespace ZooArchitect.Architecture.Entities
 
             RegisterEntityMethods();
 
-            EventBus.Subscribe<SpawnEntityRequestAcceptedEvent>(SpawnEntity);
+            EventBus.Subscribe<SpawnAnimalRequestAcceptedEvent>(SpawnAnimal);
+            EventBus.Subscribe<SpawnJailRequestAcceptedEvent>(SpawnJail);
         }
 
-        private void SpawnEntity(in SpawnEntityRequestAcceptedEvent spawnEntityRequestAcceptedEvent)
+        private void SpawnJail(in SpawnJailRequestAcceptedEvent spawnEntityRequestAcceptedEvent)
         {
-            CreateInstance<Animal>(spawnEntityRequestAcceptedEvent.blueprintToSpawn, spawnEntityRequestAcceptedEvent.coordinateToSpawn);
+            //TODO: Create jail
+        }
+
+        private void SpawnAnimal(in SpawnAnimalRequestAcceptedEvent spawnAnimalRequestAcceptedEvent)
+        {
+            CreateInstance<Animal>(spawnAnimalRequestAcceptedEvent.blueprintToSpawn, spawnAnimalRequestAcceptedEvent.coordinateToSpawn);
         }
 
         public void CreateInstance<EntityType>(string blueprintId, Coordinate coordinate) where EntityType : Entity
@@ -123,7 +129,9 @@ namespace ZooArchitect.Architecture.Entities
 
         public void Dispose()
         {
-            EventBus.UnSubscribe<SpawnEntityRequestAcceptedEvent>(SpawnEntity);
+            EventBus.UnSubscribe<SpawnAnimalRequestAcceptedEvent>(SpawnAnimal);
+            EventBus.UnSubscribe<SpawnJailRequestAcceptedEvent>(SpawnJail);
+
         }
     }
 

@@ -7,12 +7,20 @@ namespace ZooArchitect.Architecture.Math
         private Point[] points;
         public IEnumerable<Point> Points => points;
 
+        private List<int> innerIndexes;
+        private List<int> perimeterIndexes;
+
+        public IEnumerable<Point> Perimeter => Filter(perimeterIndexes);
+        public IEnumerable<Point> Inner => Filter(perimeterIndexes);
         public bool IsSingleCoordinate => points.Length == 1;
         public Point Origin => points[0];
         public Point End => points[^1];
 
         public Coordinate(Point a, Point b)
         {
+            innerIndexes = new List<int>();
+            perimeterIndexes = new List<int>();
+
             int minX = a.X < b.X ? a.X : b.X;
             int maxX = a.X > b.X ? a.X : b.X;
             int minY = a.Y < b.Y ? a.Y : b.Y;
@@ -27,9 +35,13 @@ namespace ZooArchitect.Architecture.Math
 
             for (int x = minX; x <= maxX; x++)
             {
-                for (int y = minY; y <= maxY; y++)
+                for (int y = minY; y <= maxY; y++, index++)
                 {
-                    points[index++] = new Point(x, y);
+                    points[index] = new Point(x, y);
+                    if (x > minX && x < maxX && y > minY && y < maxY)
+                        innerIndexes.Add(index);
+                    else
+                        perimeterIndexes.Add(index);
                 }
             }
         }
@@ -50,6 +62,14 @@ namespace ZooArchitect.Architecture.Math
             for (int i = 0; i < points.Length; i++)
             {
                 points[i] += offset;
+            }
+        }
+
+        private IEnumerable<Point> Filter(IEnumerable<int> indexes)
+        {
+            foreach (int index in indexes)
+            {
+                yield return points[index];
             }
         }
     }

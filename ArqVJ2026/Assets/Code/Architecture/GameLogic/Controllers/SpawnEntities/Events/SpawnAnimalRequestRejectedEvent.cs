@@ -3,7 +3,7 @@ using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Controllers.Events
 {
-    public struct SpawnEntityRequestEvent : IEvent
+    public struct SpawnAnimalRequestRejectedEvent : IEvent
     {
         public string blueprintToSpawn;
         public Coordinate coordinateToSpawn;

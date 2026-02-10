@@ -48,7 +48,7 @@ namespace ZooArchitect.Architecture.Entities
             EventBus.UnSubscribe<DayChangeEvent>(OnDayChange);
         }
 
-        public List<string> ValidEntitiesToSpawnIn(Coordinate coordinate)
+        public List<string> ValidAnimalsToSpawnIn(Coordinate coordinate)
         {
             if(Scene.IsCoordinateInsideMap(coordinate))
             {

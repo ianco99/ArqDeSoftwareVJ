@@ -20,9 +20,10 @@ namespace ZooArchitect.Architecture
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private Wallet Wallet => ServiceProvider.Instance.GetService<Wallet>();
 
-        private SpawnEntityControllerArchitecture spawnEntityControllerArchitecture;
+        private SpawnAnimalControllerArchitecture spawnAnimalControllerAchitecture;
 
-        private TerrainModifierControllerArchitecture TerrainModifierControllerArchitecture;
+        private TerrainModifierControllerArchitecture terrainModifierControllerArchitecture;
+        private SpawnJailControllerArchitecture spawnJailControllerArchitecture;
 
         private Map map;
 
@@ -40,8 +41,9 @@ namespace ZooArchitect.Architecture
         {
             map = new Map(100, 100);
             EventBus.Subscribe<ModifyTerrainRequestAceptedEvent>(OnModifyTerrainRequestAcepted);
-            spawnEntityControllerArchitecture = new SpawnEntityControllerArchitecture();
-            TerrainModifierControllerArchitecture = new TerrainModifierControllerArchitecture();
+            spawnAnimalControllerAchitecture = new SpawnAnimalControllerArchitecture();
+            terrainModifierControllerArchitecture = new TerrainModifierControllerArchitecture();
+            spawnJailControllerArchitecture = new SpawnJailControllerArchitecture();
         }
 
         public void Tick(float deltaTime)
@@ -52,7 +54,9 @@ namespace ZooArchitect.Architecture
         public void Dispose()
         {
             EventBus.UnSubscribe<ModifyTerrainRequestAceptedEvent>(OnModifyTerrainRequestAcepted);
-            spawnEntityControllerArchitecture.Dispose();
+            spawnAnimalControllerAchitecture.Dispose();
+            terrainModifierControllerArchitecture.Dispose();
+            spawnJailControllerArchitecture.Dispose();
             EntitiesLogic.Dispose();
             Wallet.Dispose();
         }

@@ -18,15 +18,19 @@ namespace ZooArchitect.View.Controller
         private IReadOnlyDictionary<KeyCode, Type> StrategyBinder { get; } =
         new Dictionary<KeyCode, Type>()
         {
-            {KeyCode.Alpha1, typeof(SpawnEntityControllerView) },
+            {KeyCode.Alpha1, typeof(SpawnAnimalControllerView) },
+            {KeyCode.Alpha3, typeof(SpawnJailControllerView) },
             {KeyCode.Alpha2, typeof(TerrainModifierControllerView) },
+            {KeyCode.Alpha4, typeof(SpawnInfrastructureControllerView) },
         };
 
         public ControllerViewStrategy()
         {
             controllers = new Dictionary<Type, ControllerView>();
-            currentStrategyType = typeof(SpawnEntityControllerView);
-            controllers.Add(typeof(SpawnEntityControllerView), new SpawnEntityControllerView());
+            currentStrategyType = typeof(SpawnAnimalControllerView);
+            controllers.Add(typeof(SpawnAnimalControllerView), new SpawnAnimalControllerView());
+            controllers.Add(typeof(SpawnJailControllerView), new SpawnInfrastructureControllerView());
+            controllers.Add(typeof(SpawnJailControllerView), new SpawnJailControllerView());
             controllers.Add(typeof(TerrainModifierControllerView), new TerrainModifierControllerView());
         }
 
