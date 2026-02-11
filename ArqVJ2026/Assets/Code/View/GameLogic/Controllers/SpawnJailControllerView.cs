@@ -23,7 +23,7 @@ namespace ZooArchitect.View.Controller
 
         public override void CreateController()
         {
-            EventBus.Raise<SpawnJailRequestEvent>(StartGroupClickPosition, FinishGroupClickPosition);
+         EventBus.Raise<SpawnJailRequestEvent>(StartGroupClickPosition, FinishGroupClickPosition, EntitiesLogic.GetJailBlueprint());
         }
 
         public override void Dispose()

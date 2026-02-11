@@ -3,6 +3,7 @@ using ianco99.ToolBox.Services;
 using System;
 using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Entities;
+using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Controllers
 {
@@ -19,25 +20,20 @@ namespace ZooArchitect.Architecture.Controllers
         private void RequestSpawnInfrastructure(in SpawnInfrastructureRequestEvent spawnInfrastructureRequestEvent)
         {
             bool collides = false;
-            foreach (Infrastructure infrastructure in EntityRegistry.Infrastructures)
+            Coordinate tentativeSpawnCoordinate = new Coordinate(spawnInfrastructureRequestEvent.pointToSpawn); ;
+
+            foreach (Structure structure in EntityRegistry.Structures)
             {
-                if (infrastructure.coordinate.Origin == spawnInfrastructureRequestEvent.coordinateToSpawn.Origin)
+                if (structure.coordinate.Overlaps(tentativeSpawnCoordinate))
                 {
-                    collides = true;
-                    break;
+                    EventBus.Raise<SpawnInfrastructureRequestRejectedEvent>
+                        (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.pointToSpawn);
+                    return;
                 }
             }
 
-            if (collides)
-            {
-                EventBus.Raise<SpawnInfrastructureRequestRejectedEvent>
-                    (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.coordinateToSpawn);
-            }
-            else
-            {
-                EventBus.Raise<SpawnInfrastructureRequestAcceptedEvent>
-                    (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.coordinateToSpawn);
-            }
+            EventBus.Raise<SpawnInfrastructureRequestAcceptedEvent>
+                (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.pointToSpawn);
         }
 
         public void Dispose()

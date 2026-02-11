@@ -3,6 +3,7 @@ using ianco99.ToolBox.Services;
 using System;
 using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Entities;
+using ZooArchitect.Architecture.Logs;
 using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.GameLogic.Controllers
@@ -20,10 +21,27 @@ namespace ZooArchitect.Architecture.GameLogic.Controllers
         {
             Coordinate tentativeNewCoordinate = new Coordinate(spawnJailRequestEvent.origin, spawnJailRequestEvent.end);
 
-            if (tentativeNewCoordinate.Inner.GetEnumerator().Current == null)
-                EventBus.Raise<SpawnJailRequestAcceptedEvent>(spawnJailRequestEvent.origin, spawnJailRequestEvent.end);
-            else
-                EventBus.Raise<SpawnJailRequestRejectedEvent>(spawnJailRequestEvent.origin, spawnJailRequestEvent.end, "JAULA CHIQUITA!!");
+
+            foreach (Structure structure in EntityRegistry.Structures)
+            {
+                if (structure.coordinate.Overlaps(tentativeNewCoordinate))
+                {
+                    EventBus.Raise<SpawnJailRequestRejectedEvent>(spawnJailRequestEvent.origin, spawnJailRequestEvent.end, spawnJailRequestEvent.blueprintName);
+                    GameConsole.Warning("STRUCTURE OVERLAPS!!");
+                    return;
+                }
+            }
+
+            foreach (Jail jail in EntityRegistry.Jails)
+            {
+                if (jail.coordinate.IsInInner(tentativeNewCoordinate))
+                {
+                    EventBus.Raise<SpawnJailRequestAcceptedEvent>(spawnJailRequestEvent.origin, spawnJailRequestEvent.end, spawnJailRequestEvent.blueprintName);
+                    return;
+                }
+            }
+
+                    EventBus.Raise<SpawnJailRequestRejectedEvent>(spawnJailRequestEvent.origin, spawnJailRequestEvent.end, spawnJailRequestEvent.blueprintName);
 
         }
 

@@ -1,6 +1,7 @@
 ﻿using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using ZooArchitect.Architecture.Entities;
@@ -38,20 +39,41 @@ namespace ZooArchitect.View.Entities
 
         private void OnEntityCreated(in EntityCreatedEvent<Entity> entityCreatedEvent)
         {
+            bool IsSingleCoordinate = EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate.IsSingleCoordinate;
+
+            List<object> parameters = new List<object>();
+
+            GameObject prefab = PrefabsRegistryView.Get(TableNamesView.ArchitectureToViewTable[entityCreatedEvent.blueprintTable]);
+
+            GameObject objectToInstance = IsSingleCoordinate ? prefab : null;
+
             ViewComponent viewComponent = GameScene.AddSceneComponent(
-               ViewToArchitectureMap.ViewOf(EntityRegistry[entityCreatedEvent.entityCreatedId].GetType()),
-               PrefabsRegistryView.Get(TableNamesView.ANIMALS_VIEW_TABLE_NAME, entityCreatedEvent.blueprintId).name + $"  -  Architecture type: {EntityRegistry[entityCreatedEvent.entityCreatedId].GetType().Name} - ID: {entityCreatedEvent.entityCreatedId}",
-               GameScene.EntitiesContainer.transform,
-               PrefabsRegistryView.Get(TableNamesView.ANIMALS_VIEW_TABLE_NAME, entityCreatedEvent.blueprintId));
+              ViewToArchitectureMap.ViewOf(EntityRegistry[entityCreatedEvent.entityCreatedId].GetType()),
+              PrefabsRegistryView.Get(TableNamesView.ArchitectureToViewTable[entityCreatedEvent.blueprintTable], entityCreatedEvent.blueprintId).name + $"  -  Architecture type: {EntityRegistry[entityCreatedEvent.entityCreatedId].GetType().Name} - ID: {entityCreatedEvent.entityCreatedId}",
+              GameScene.EntitiesContainer.transform,
+              prefab);
 
             viewComponent.transform.position = GameScene.CoordinateToWorld(EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate);
 
-            SpriteRenderer sprite = viewComponent.GetComponent<SpriteRenderer>();
-            sprite.sortingOrder = GameScene.ENTITIES_DRAWING_ORDER;
+            if (IsSingleCoordinate)
+            {
+                SpriteRenderer sprite = viewComponent.GetComponent<SpriteRenderer>();
+                sprite.sortingOrder = GameScene.ENTITIES_DRAWING_ORDER;
+
+                
+            }
+            else
+            {
+                parameters.Add(prefab);
+            }
 
             setEntityIdMethod.Invoke(viewComponent, new object[] { entityCreatedEvent.entityCreatedId });
 
+            viewComponent.Init(parameters.ToArray());
+
             registerEntityMethod.Invoke(EntityRegistryView, new object[] { viewComponent });
+
+            viewComponent.LateInit();
         }
 
         public void Dispose()

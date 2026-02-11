@@ -45,20 +45,21 @@ namespace ZooArchitect.Architecture.Entities
         private void SpawnInfrastrcture(in SpawnInfrastructureRequestAcceptedEvent spawnInfrastructureRequestAcceptedEvent)
         {
             //Todo create infrastructure
-            CreateInstance<Infrastructure>(spawnInfrastructureRequestAcceptedEvent.blueprintToSpawn, spawnInfrastructureRequestAcceptedEvent.coordinateToSpawn);
+            CreateInstance<Infrastructure>(spawnInfrastructureRequestAcceptedEvent.blueprintToSpawn, new Coordinate(spawnInfrastructureRequestAcceptedEvent.coordinateToSpawn), TableNames.INFRASTRUCTURE_TABLE_NAME);
         }
 
         private void SpawnJail(in SpawnJailRequestAcceptedEvent spawnJailRequestAcceptedEvent)
         {
             //Todo create Jail
+            CreateInstance<Jail>(spawnJailRequestAcceptedEvent.blueprintName, new Coordinate(spawnJailRequestAcceptedEvent.origin, spawnJailRequestAcceptedEvent.end), TableNames.JAILS_TABLE_NAME);
         }
 
         private void SpawnAnimal(in SpawnAnimalRequestAcceptedEvent spawnAnimalRequestAceptedEvent)
         {
-            CreateInstance<Animal>(spawnAnimalRequestAceptedEvent.blueprintToSpawn, spawnAnimalRequestAceptedEvent.coordinateToSpawn);
+            CreateInstance<Animal>(spawnAnimalRequestAceptedEvent.blueprintToSpawn, new Coordinate(spawnAnimalRequestAceptedEvent.pointToSpawn), TableNames.ANIMALS_TABLE_NAME);
         }
 
-        public void CreateInstance<EntityType>(string blueprintId, Coordinate coordinate) where EntityType : Entity
+        public void CreateInstance<EntityType>(string blueprintId, Coordinate coordinate, string tableName) where EntityType : Entity
         {
             lastAssignedEntityId++;
             uint newEntityId = lastAssignedEntityId;
@@ -68,7 +69,7 @@ namespace ZooArchitect.Architecture.Entities
 
             object newEntity = entityConstructors[typeof(EntityType)].Invoke(new object[] { newEntityId, coordinate });
 
-            BlueprintBinder.Apply(ref newEntity, TableNames.ANIMALS_TABLE_NAME, blueprintId);
+            BlueprintBinder.Apply(ref newEntity, tableName, blueprintId);
 
             (newEntity as EntityType).Init();
 
@@ -88,15 +89,15 @@ namespace ZooArchitect.Architecture.Entities
 
             for (int i = entityTypes.Count - 1; i >= 0; i--)
             {
-                raiseEntityCreatedMethod.MakeGenericMethod(entityTypes[i]).Invoke(this, new object[] { blueprintId, newEntity });
+                raiseEntityCreatedMethod.MakeGenericMethod(entityTypes[i]).Invoke(this, new object[] { blueprintId, tableName, newEntity });
             }
 
             (newEntity as EntityType).LateInit();
         }
 
-        private void RaiseEntityCreated<EntityType>(string blueprintId, EntityType newEntity) where EntityType : Entity
+        private void RaiseEntityCreated<EntityType>(string blueprintId, string blueprintTable, EntityType newEntity) where EntityType : Entity
         {
-            EventBus.Raise<EntityCreatedEvent<EntityType>>(blueprintId, newEntity.ID, newEntity.coordinate);
+            EventBus.Raise<EntityCreatedEvent<EntityType>>(blueprintId, blueprintTable, newEntity.ID, newEntity.coordinate.Origin, newEntity.coordinate.End);
         }
 
         private void RegisterEntityMethods()

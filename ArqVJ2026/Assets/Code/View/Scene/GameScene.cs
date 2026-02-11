@@ -109,6 +109,11 @@ namespace ZooArchitect.View.Scene
             return mapView.CoordinateToGrid(coordinate);
         }
 
+        public Vector2 PointToWorld(Point point)
+        {
+            return mapView.PointToWorld(point);
+        }
+
         public Point GetMouseGridCoordinate()
         {
             return mapView.GetMouseCoordinateAsPointInGrid(cameraView);

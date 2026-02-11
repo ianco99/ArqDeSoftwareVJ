@@ -17,7 +17,7 @@ namespace ZooArchitect.View.Controller
 
         public override void CreateController()
         {
-            Coordinate clickPoint = new Coordinate(GameScene.GetMouseGridCoordinate());
+            Point clickPoint = GameScene.GetMouseGridCoordinate();
             List<string> blueprints = GetValidBlueprints(clickPoint);
             if (blueprints.Count == 0)
                 return;
@@ -25,7 +25,7 @@ namespace ZooArchitect.View.Controller
             Display(GetActionsToDisplay(clickPoint, blueprints));
         }
 
-        protected abstract List<string> GetValidBlueprints(Coordinate clickPoint);
-        protected abstract Dictionary<string, Action> GetActionsToDisplay(Coordinate clickPoint, List<string> blueprints);
+        protected abstract List<string> GetValidBlueprints(Point clickPoint);
+        protected abstract Dictionary<string, Action> GetActionsToDisplay(Point clickPoint, List<string> blueprints);
     }
 }

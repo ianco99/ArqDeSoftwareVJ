@@ -97,7 +97,12 @@ namespace ZooArchitect.View.Scene
 
         public Vector3 CoordinateToGrid(Coordinate coordinate)
         {
-            Vector3Int coord = new Vector3Int(coordinate.Origin.X, coordinate.Origin.Y, 0);
+            return PointToWorld(coordinate.Origin);
+        }
+
+        public Vector3 PointToWorld(Point point)
+        {
+            Vector3Int coord = new Vector3Int(point.X, point.Y, 0);
             Vector3 output = grid.GetCellCenterWorld(coord);
             output.z = 0.0f;
             return output;

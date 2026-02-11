@@ -3,6 +3,7 @@ using ianco99.ToolBox.Services;
 using System;
 using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Entities;
+using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.GameLogic.Controllers
 {
@@ -17,23 +18,33 @@ namespace ZooArchitect.Architecture.GameLogic.Controllers
 
         private void RequestAnimalEntity(in SpawnAnimalRequestEvent spawnAnimalRequestEvent)
         {
+            Coordinate tentativeSpawnCoordinate = new Coordinate(spawnAnimalRequestEvent.pointToSpawn);
             bool collides = false;
+
             foreach (Animal animal in EntityRegistry.Animals)
             {
-                if (animal.coordinate.Origin == spawnAnimalRequestEvent.coordinateToSpawn.Origin)
+                if (animal.coordinate.Overlaps(tentativeSpawnCoordinate))
                 {
                     collides = true;
                     break;
                 }
             }
 
+            foreach (Jail jail in EntityRegistry.Jails)
+            {
+                if(jail.coordinate.Overlaps(tentativeSpawnCoordinate))
+                {
+
+                }
+            }
+
             if (collides)
             {
-                EventBus.Raise<SpawnAnimalRequestRejectedEvent>(spawnAnimalRequestEvent.blueprintToSpawn, spawnAnimalRequestEvent.coordinateToSpawn);
+                EventBus.Raise<SpawnAnimalRequestRejectedEvent>(spawnAnimalRequestEvent.blueprintToSpawn, spawnAnimalRequestEvent.pointToSpawn);
             }
             else
             {
-                EventBus.Raise<SpawnAnimalRequestAcceptedEvent>(spawnAnimalRequestEvent.blueprintToSpawn, spawnAnimalRequestEvent.coordinateToSpawn);
+                EventBus.Raise<SpawnAnimalRequestAcceptedEvent>(spawnAnimalRequestEvent.blueprintToSpawn, spawnAnimalRequestEvent.pointToSpawn);
             }
         }
 

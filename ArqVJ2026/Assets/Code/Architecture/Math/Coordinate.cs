@@ -16,6 +16,9 @@ namespace ZooArchitect.Architecture.Math
         public Point Origin => points[0];
         public Point End => points[^1];
 
+        public int Width => (End.X - Origin.X) + 1;
+        public int Height => (End.Y - Origin.Y) + 1;
+
         public Coordinate(Point a, Point b)
         {
             innerIndexes = new List<int>();
@@ -71,6 +74,39 @@ namespace ZooArchitect.Architecture.Math
             {
                 yield return points[index];
             }
+        }
+
+        public bool Overlaps(Coordinate other)
+        {
+            if (IsSingleCoordinate && other.IsSingleCoordinate && Origin == other.Origin)
+                return true;
+
+            if (Origin.X >= other.Origin.X + other.Width &&
+                Origin.X + Width > other.Origin.X &&
+                End.Y < other.End.Y + other.Height &&
+                End.Y + Height > other.End.Y)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsInPerimeter(Coordinate other)
+        {
+            if (other.IsSingleCoordinate)
+            {
+                if ((Origin.X == other.Origin.X || End.X == other.End.X) && other.Origin.Y >= Origin.Y && other.End.Y <= End.Y || (Origin.Y == other.Origin.Y || End.Y == other.End.Y) && other.Origin.X >= Origin.X && other.End.X <= End.X)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsInInner(Coordinate other)
+        {
+            return !IsInPerimeter(other) && Overlaps(other);
         }
     }
 }

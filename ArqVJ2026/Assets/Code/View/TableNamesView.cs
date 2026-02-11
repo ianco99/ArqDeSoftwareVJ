@@ -1,4 +1,7 @@
-﻿namespace ZooArchitect.View.Data
+﻿using System.Collections.Generic;
+using ZooArchitect.Architecture.Data;
+
+namespace ZooArchitect.View.Data
 {
     internal static class TableNamesView
     {
@@ -19,5 +22,12 @@
         internal const string TILES_VIEW_TABLE_NAME = "Tiles View";
         internal const string UI_VIEW_TABLE_NAME = "UI View";
         internal const string CAMERA_VIEW_TABLE_NAME = "Cameras View";
+
+        public static readonly IReadOnlyDictionary<string, string> ArchitectureToViewTable = new Dictionary<string, string>()
+        {
+            {TableNames.ANIMALS_TABLE_NAME , ANIMALS_VIEW_TABLE_NAME},
+            {TableNames.INFRASTRUCTURE_TABLE_NAME, INFRASTRUCTURE_VIEW_TABLE_NAME},
+            {TableNames.JAILS_TABLE_NAME , JAILS_VIEW_TABLE_NAME},
+        };
     }
 }

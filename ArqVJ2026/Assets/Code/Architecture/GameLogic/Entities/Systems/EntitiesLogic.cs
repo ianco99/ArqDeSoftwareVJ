@@ -21,6 +21,8 @@ namespace ZooArchitect.Architecture.Entities
 
         private Scene Scene => ServiceProvider.Instance.GetService<Scene>();
 
+
+
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
 
         private AnimalsLogic animalsLogic;
@@ -51,18 +53,23 @@ namespace ZooArchitect.Architecture.Entities
             EventBus.UnSubscribe<DayChangeEvent>(OnDayChange);
         }
 
-        public List<string> ValidAnimalsToSpawnIn(Coordinate coordinate)
+        public List<string> ValidAnimalsToSpawnIn(Point point)
         {
-            if (Scene.IsCoordinateInsideMap(coordinate))
+            if (Scene.IsCoordinateInsideMap(new Coordinate(point)))
                 return BlueprintRegistry.BlueprintsOf(TableNames.ANIMALS_TABLE_NAME);
             return new List<string>();
         }
 
-        public List<string> ValidInfrastructuresToSpawnIn(Coordinate coordinate)
+        public List<string> ValidInfrastructuresToSpawnIn(Point point)
         {
-            if (Scene.IsCoordinateInsideMap(coordinate))
+            if (Scene.IsCoordinateInsideMap(new Coordinate(point)))
                 return BlueprintRegistry.BlueprintsOf(TableNames.INFRASTRUCTURE_TABLE_NAME);
             return new List<string>();
+        }
+
+        public string GetJailBlueprint()
+        {
+            return BlueprintRegistry.BlueprintsOf(TableNames.JAILS_TABLE_NAME)[0];
         }
     }
 }
