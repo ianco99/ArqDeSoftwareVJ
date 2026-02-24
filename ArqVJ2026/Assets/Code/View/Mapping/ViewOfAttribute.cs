@@ -11,4 +11,5 @@ namespace ZooArchitect.View.Mapping
             this.architectureType = architectureType;
         }
     }
+
 }

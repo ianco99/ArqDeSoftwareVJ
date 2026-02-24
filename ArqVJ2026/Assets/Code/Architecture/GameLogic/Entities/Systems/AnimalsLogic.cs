@@ -4,7 +4,7 @@ using System;
 
 namespace ZooArchitect.Architecture.Entities
 {
-    public sealed class AnimalsLogic : ITickable, IDisposable
+    public sealed class AnimalsLogic :  ITickable, IDisposable
     {
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
 
@@ -22,7 +22,7 @@ namespace ZooArchitect.Architecture.Entities
 
         public void Dispose()
         {
-
         }
     }
+
 }

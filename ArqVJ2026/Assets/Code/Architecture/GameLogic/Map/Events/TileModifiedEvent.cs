@@ -1,4 +1,4 @@
-using ianco99.ToolBox.Events;
+﻿using ianco99.ToolBox.Events;
 
 namespace ZooArchitect.Architecture.GameLogic.Events
 {

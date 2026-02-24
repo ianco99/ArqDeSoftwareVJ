@@ -1,8 +1,9 @@
 using ianco99.ToolBox.Blueprints;
 using ianco99.ToolBox.DataFlow;
 using ianco99.ToolBox.Events;
+using ianco99.ToolBox.Rules;
+using ianco99.ToolBox.Scheduling;
 using ianco99.ToolBox.Services;
-using ianco99.ToolBox.TaskScheduler;
 using System;
 using ZooArchitect.Architecture.GameLogic;
 
@@ -19,8 +20,11 @@ namespace ZooArchitect.Architecture
         {
             ServiceProvider.Instance.AddService<EventBus>(new EventBus());
             ServiceProvider.Instance.AddService<BlueprintRegistry>(new BlueprintRegistry(blueprintsPath));
+            ServiceProvider.Instance.AddService<BlueprintFieldsCache>(new BlueprintFieldsCache());
             ServiceProvider.Instance.AddService<BlueprintBinder>(new BlueprintBinder());
             ServiceProvider.Instance.AddService<TaskScheduler>(new TaskScheduler());
+            ServiceProvider.Instance.AddService<RuleEvaluator>(new RuleEvaluator());
+            ServiceProvider.Instance.AddService<RuleFactory>(new RuleFactory());
             ServiceProvider.Instance.AddService<Scene>(new Scene());
         }
 
@@ -45,6 +49,5 @@ namespace ZooArchitect.Architecture
         {
             Scene.Dispose();
         }
-
     }
 }

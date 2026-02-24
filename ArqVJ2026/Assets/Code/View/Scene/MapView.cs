@@ -68,7 +68,7 @@ namespace ZooArchitect.View.Scene
             CreateTile(tileModifiedEvent.newTileId, tileModifiedEvent.xCoord, tileModifiedEvent.yCoord);
         }
 
-        private void DestroyTile(int coordX, int coordY)
+        private void DestroyTile(int coordX, int coordY) 
         {
             int hashToDestroy = instanceHashPerCoordinate[(coordX, coordY)];
             Destroy(container[hashToDestroy]);
@@ -97,12 +97,12 @@ namespace ZooArchitect.View.Scene
 
         public Vector3 CoordinateToGrid(Coordinate coordinate)
         {
-            return PointToWorld(coordinate.Origin);
+            return PointToGrid(coordinate.Origin);
         }
 
-        public Vector3 PointToWorld(Point point)
+        public Vector3 PointToGrid(Point point) 
         {
-            Vector3Int coord = new Vector3Int(point.X, point.Y, 0);
+            Vector3Int coord = new Vector3Int(point.x, point.y, 0);
             Vector3 output = grid.GetCellCenterWorld(coord);
             output.z = 0.0f;
             return output;
@@ -131,6 +131,8 @@ namespace ZooArchitect.View.Scene
             EventBus.UnSubscribe<TileModifiedEvent>(OnTileModified);
         }
 
+        public Vector2 CellSize => grid.cellSize;
+
         struct TileViewData
         {
             [BlueprintParameter("Architecture ID")] public string architectureID;
@@ -138,6 +140,5 @@ namespace ZooArchitect.View.Scene
 
             public int ArchitectureIHHash => architectureID.GetHashCode();
         }
-
     }
 }

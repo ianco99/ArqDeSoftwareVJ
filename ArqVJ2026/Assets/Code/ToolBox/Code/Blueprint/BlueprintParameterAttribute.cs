@@ -2,15 +2,14 @@
 
 namespace ianco99.ToolBox.Blueprints
 {
-    public sealed class BlueprintParameterAttribute : Attribute
+    public sealed class BlueprintParameterAttribute : Attribute 
     {
         private string parameterHeader;
-        internal string ParameterHeader => parameterHeader;
+        internal string ParameterHeader  => parameterHeader; 
 
         public BlueprintParameterAttribute(string parameterHeader)
         {
             this.parameterHeader = parameterHeader;
         }
-
     }
 }

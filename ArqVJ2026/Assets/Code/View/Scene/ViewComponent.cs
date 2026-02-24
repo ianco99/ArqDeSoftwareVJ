@@ -18,5 +18,7 @@ namespace ZooArchitect.View.Scene
         public virtual void Tick(float deltaTime) { }
 
         public virtual void Dispose() { }
+
     }
+
 }

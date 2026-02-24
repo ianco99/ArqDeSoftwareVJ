@@ -3,7 +3,8 @@ using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Entities.Events
 {
-    public struct EntityCreatedEvent<EntityType> : IEvent where EntityType : Entity
+    public struct EntityCreatedEvent<EntityType> : IEvent
+        where EntityType : Entity
     {
         public string blueprintId;
         public string blueprintTable;

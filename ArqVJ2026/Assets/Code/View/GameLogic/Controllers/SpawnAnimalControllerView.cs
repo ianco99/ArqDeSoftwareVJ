@@ -1,14 +1,12 @@
 ﻿using ianco99.ToolBox.Events;
-using ianco99.ToolBox.Services;
 using System;
 using System.Collections.Generic;
+using ZooArchitect.Architecture.Controllers;
 using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Entities;
-using ZooArchitect.Architecture.GameLogic.Controllers;
 using ZooArchitect.Architecture.Logs;
 using ZooArchitect.Architecture.Math;
 using ZooArchitect.View.Mapping;
-using ZooArchitect.View.Scene;
 
 namespace ZooArchitect.View.Controller
 {
@@ -17,10 +15,11 @@ namespace ZooArchitect.View.Controller
     {
         public SpawnAnimalControllerView()
         {
-            EventBus.Subscribe<SpawnAnimalRequestRejectedEvent>(OnSpawnRejected);
+            EventBus.Subscribe<SpawnRequestRejectedEvent<Animal>>(OnSpawnRejected);
+            EventBus.Subscribe<SpawnRequestAcceptedEvent<Animal>>(OnSpawnAccepted);
         }
 
-        protected override List<string> GetValidBlueprints(Point clickPoint)
+		protected override List<string> GetValidBlueprints(Point clickPoint)
         {
             return EntitiesLogic.ValidAnimalsToSpawnIn(clickPoint);
         }
@@ -33,21 +32,30 @@ namespace ZooArchitect.View.Controller
                 int index = i;
                 spawnEntities.Add($"Spawn {blueprints[index]}", () =>
                 {
-                    EventBus.Raise<SpawnAnimalRequestEvent>(blueprints[index], clickPoint);
+                    EventBus.Raise<SpawnRequestEvent<Animal>>(blueprints[index], new Coordinate(clickPoint));
                 });
             }
             return spawnEntities;
         }
 
-        private void OnSpawnRejected(in SpawnAnimalRequestRejectedEvent spawnEntityRequestRejectedEvent)
+        private void OnSpawnRejected(in SpawnRequestRejectedEvent<Animal> spawnEntityRequestRejectedEvent)
         {
-            GameConsole.Warning($"Spawn of {spawnEntityRequestRejectedEvent.blueprintToSpawn} in {spawnEntityRequestRejectedEvent.pointToSpawn} rejected");
+            GameConsole.Warning($"Spawn of {spawnEntityRequestRejectedEvent.blueprintToSpawn} in {spawnEntityRequestRejectedEvent.coordiateToSpawn.Origin.x} rejected" +
+               (string.IsNullOrEmpty(spawnEntityRequestRejectedEvent.message) ? string.Empty : "\n" + spawnEntityRequestRejectedEvent.message));
+            FeedbackFactory.SpawnNegativeFeedback(new UnityEngine.Vector3(spawnEntityRequestRejectedEvent.coordiateToSpawn.Origin.x,
+                spawnEntityRequestRejectedEvent.coordiateToSpawn.Origin.y));
+        }
+
+        private void OnSpawnAccepted(in SpawnRequestAcceptedEvent<Animal> spawnAnimalRequestAcceptedEvent)
+        {
+            FeedbackFactory.SpawnPositiveFeedback(new UnityEngine.Vector3(spawnAnimalRequestAcceptedEvent.coordinateToSpawn.Origin.x,
+                spawnAnimalRequestAcceptedEvent.coordinateToSpawn.Origin.y));
         }
 
         public override void Dispose()
         {
-            EventBus.UnSubscribe<SpawnAnimalRequestRejectedEvent>(OnSpawnRejected);
+            EventBus.UnSubscribe<SpawnRequestRejectedEvent<Animal>>(OnSpawnRejected);
+            EventBus.UnSubscribe<SpawnRequestAcceptedEvent<Animal>>(OnSpawnAccepted);
         }
     }
-
 }

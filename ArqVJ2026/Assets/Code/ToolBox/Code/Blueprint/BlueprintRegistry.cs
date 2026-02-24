@@ -1,8 +1,8 @@
-using ianco99.ToolBox.Services;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Collections.Generic;
 using System.IO;
+using ianco99.ToolBox.Services;
 
 namespace ianco99.ToolBox.Blueprints
 {
@@ -14,10 +14,10 @@ namespace ianco99.ToolBox.Blueprints
         private readonly Dictionary<string, BlueprintData> blueprintDatas;
         internal Dictionary<string, BlueprintData> BlueprintDatas => blueprintDatas;
 
-        public BlueprintRegistry(string blueprintPath)
+        public BlueprintRegistry(string bluprintPath)
         {
             blueprintDatas = new Dictionary<string, BlueprintData>();
-            using (FileStream file = new FileStream(blueprintPath, FileMode.Open, FileAccess.Read))
+            using (FileStream file = new FileStream(bluprintPath, FileMode.Open, FileAccess.Read))
             {
                 IWorkbook workbook = new XSSFWorkbook(file);
 
@@ -28,7 +28,7 @@ namespace ianco99.ToolBox.Blueprints
             }
         }
 
-        public List<string> BlueprintsOf(string blueprintTable) => blueprintDatas[blueprintTable].BlueprintIDs;
+        public List<string> BlueprintsOf(string blueprintTable) => blueprintDatas[blueprintTable].BluprintIDs;
         public List<string> ParametersOf(string blueprintTable) => blueprintDatas[blueprintTable].Parameters;
         public string this[string blueprintTable, string blueprintId, string parameter] => blueprintDatas[blueprintTable][blueprintId, parameter];
     }

@@ -14,6 +14,7 @@ namespace ZooArchitect.View.Entities
         private Dictionary<uint, EntityView> entities;
         private Dictionary<Type, List<uint>> entityIdsPerType;
 
+
         public EntityRegistryView()
         {
             entities = new Dictionary<uint, EntityView>();
@@ -24,13 +25,13 @@ namespace ZooArchitect.View.Entities
 
         private void Register(EntityView entityView)
         {
-            entities.Add(entityView.ArchitectureEntityID, entityView);
+            entities.Add(entityView.ArchitectureEnitityID, entityView);
             Type currentEntityType = entityView.GetType();
             do
             {
                 if (!entityIdsPerType.ContainsKey(currentEntityType))
                     entityIdsPerType.Add(currentEntityType, new List<uint>());
-                entityIdsPerType[currentEntityType].Add(entityView.ArchitectureEntityID);
+                entityIdsPerType[currentEntityType].Add(entityView.ArchitectureEnitityID);
                 currentEntityType = currentEntityType.BaseType;
             } while (currentEntityType != typeof(EntityView));
         }

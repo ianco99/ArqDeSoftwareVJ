@@ -4,124 +4,167 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 namespace ZooArchitect.View.Scene
 {
-    internal sealed class ContextMenuView : ViewComponent, IService
-    {
-        public bool IsPersistance => false;
+	internal sealed class ContextMenuView : ViewComponent, IService
+	{
+		public bool IsPersistance => false;
 
-        private float menuWidth = 200.0f;
-        private RectTransform container;
-        private GameObject buttonPrefab;
-        private Canvas canvas;
+		private float menuWhith = 200.0f;
+		private RectTransform container;
+		private GameObject buttonPrefab;
+		private GameObject titlePrefab;
+		private Canvas canvas;
 
-        private List<Button> spawnedButtons;
+		private List<Button> spawnedButtons;
+		private Vector2 padding = new Vector2(10, 10);
 
-        private Vector2 padding = new Vector2(30, 20);
-        private const int BUTTON_HEIGHT = 30;
+		private const int BUTTON_HEIGHT = 30;
 
-        public override void Init()
-        {
-            base.Init();
-            spawnedButtons = new List<Button>();
-        }
+		private Text titleText;
+		private RectTransform titleRect;
 
-        public override void Init(params object[] parameters)
-        {
-            base.Init(parameters);
+		public override void Init()
+		{
+			spawnedButtons = new List<Button>();
+		}
 
-            GameObject containerPrefab = parameters[0] as GameObject;
+		public override void Init(params object[] parameters)
+		{
+			base.Init(parameters);
 
-            container = (parameters[0] as GameObject).transform as RectTransform;
-            buttonPrefab = parameters[1] as GameObject;
-            canvas = parameters[2] as Canvas;
+			GameObject containerPrefab = parameters[0] as GameObject;
+			buttonPrefab = parameters[1] as GameObject;
+			titlePrefab = parameters[2] as GameObject;
+			canvas = parameters[3] as Canvas;
 
-            container = Instantiate(containerPrefab, canvas.transform).transform as RectTransform;
-        }
+			container = Instantiate(containerPrefab, canvas.transform).transform as RectTransform;
 
-        public override void Tick(float deltaTime)
-        {
-            if (Input.GetMouseButtonDown(2))
-            {
-                //Hide();
-            }
-        }
+			InstantiateTitle();
+		}
 
-        private void Hide()
-        {
-            ClearAllButtons();
-        }
+		private void InstantiateTitle()
+		{
+			GameObject titleInstance = Instantiate(titlePrefab, container);
+			titleText = titleInstance.GetComponent<Text>();
+			titleRect = titleInstance.GetComponent<RectTransform>();
 
-        public void Show(Dictionary<string, Action> entries)
-        {
-            ClearAllButtons();
+			titleRect.anchorMin = new Vector2(0.0f, 1.0f);
+			titleRect.anchorMax = new Vector2(0.0f, 1.0f);
+			titleRect.pivot = new Vector2(0.0f, 1.0f);
 
-            foreach (KeyValuePair<string, Action> action in entries)
-            {
-                CreateButton(action.Key, action.Value);
-            }
+			titleText.text = string.Empty;
+			titleInstance.SetActive(false);
+		}
 
-            LayoutButtons();
-            SetPosition(Input.mousePosition);
-        }
+		public override void Tick(float deltaTime)
+		{
+			if (Input.GetMouseButtonDown(2))
+			{
+				Hide();
+			}
+		}
 
-        private void SetPosition(Vector3 mousePosition)
-        {
-            RectTransform canvasRect = canvas.transform as RectTransform;
+		private void Hide()
+		{
+			ClearAllButtons();
+			titleText.text = string.Empty;
+			titleRect.gameObject.SetActive(false);
+		}
 
-            Vector2 localPoint;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, mousePosition, canvas.renderMode == RenderMode.ScreenSpaceCamera ? null : canvas.worldCamera, out localPoint);
-            container.anchoredPosition = localPoint;
-        }
+		public void Show(Dictionary<string, Action> entries)
+		{
+			Show(null, entries);
+		}
 
-        private void LayoutButtons()
-        {
-            float height = spawnedButtons.Count * BUTTON_HEIGHT * padding.y * 2.0f;
+		public void Show(string title, Dictionary<string, Action> entries)
+		{
+			ClearAllButtons();
 
-            container.sizeDelta = new Vector2(menuWidth, height);
+			bool hasTitle = !string.IsNullOrEmpty(title);
 
-            for (int i = 0; i < spawnedButtons.Count; i++)
-            {
-                RectTransform rect = spawnedButtons[i].GetComponent<RectTransform>();
+			if (hasTitle)
+			{
+				titleText.text = title;
+				titleRect.gameObject.SetActive(true);
+			}
+			else
+			{
+				titleRect.gameObject.SetActive(false);
+			}
 
-                rect.anchorMin = new Vector2(0.0f, 1.0f);
-                rect.anchorMax = new Vector2(0.0f, 1.0f);
+			foreach (KeyValuePair<string, Action> action in entries)
+			{
+				CreateButton(action.Key, action.Value);
+			}
 
-                rect.pivot = new Vector2(0.0f, 1.0f);
+			LayoutElements(hasTitle);
+			SetPosition(Input.mousePosition);
+		}
 
-                rect.sizeDelta = new Vector2(menuWidth - padding.x * 2.0f, BUTTON_HEIGHT);
+		private void SetPosition(Vector2 mousePosition)
+		{
+			RectTransform canvasRect = canvas.transform as RectTransform;
 
-                rect.anchoredPosition = new Vector2(padding.x, -padding.y - i * BUTTON_HEIGHT);
-            }
-        }
+			Vector2 localPoint;
+			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, mousePosition,
+				canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera, out localPoint);
+			container.anchoredPosition = localPoint;
+		}
 
-        private void CreateButton(string name, Action action)
-        {
-            Button button = Instantiate(buttonPrefab, container).GetComponent<Button>();
-            spawnedButtons.Add(button);
+		private void LayoutElements(bool hasTitle)
+		{
+			float titleHeight = hasTitle ? titleRect.sizeDelta.y : 0.0f;
+			float height = spawnedButtons.Count * BUTTON_HEIGHT + padding.y * 2 + titleHeight;
+			container.sizeDelta = new Vector2(menuWhith, height);
+			float currentY = -padding.y;
 
+			if (hasTitle)
+			{
+				titleRect.sizeDelta = new Vector2(menuWhith - padding.x * 2.0f, titleRect.sizeDelta.y);
+				titleRect.anchoredPosition = new Vector2(padding.x, currentY);
+				currentY -= titleRect.sizeDelta.y;
+			}
 
+			for (int i = 0; i < spawnedButtons.Count; i++)
+			{
+				RectTransform rect = spawnedButtons[i].GetComponent<RectTransform>();
 
-            Text text = button.GetComponentInChildren<Text>();
-            text.text = name;
+				rect.anchorMin = new Vector2(0.0f, 1.0f);
+				rect.anchorMax = new Vector2(0.0f, 1.0f);
+				rect.pivot = new Vector2(0.0f, 1.0f);
 
-            button.onClick.AddListener(() =>
-            {
-                action?.Invoke();
-                Hide();
-            });
-        }
+				rect.sizeDelta = new Vector2(menuWhith - padding.x * 2.0f, BUTTON_HEIGHT);
+				rect.anchoredPosition = new Vector2(padding.x, currentY);
 
-        private void ClearAllButtons()
-        {
-            for (int i = 0; i < spawnedButtons.Count; i++)
-            {
-                spawnedButtons[i].onClick.RemoveAllListeners();
-                Destroy(spawnedButtons[i].gameObject);
-            }
+				currentY -= BUTTON_HEIGHT;
+			}
+		}
 
-            spawnedButtons.Clear();
-        }
-    }
+		private void CreateButton(string name, Action action)
+		{
+			Button button = Instantiate(buttonPrefab, container).GetComponent<Button>();
+			spawnedButtons.Add(button);
+
+			Text text = button.GetComponentInChildren<Text>();
+			text.text = name;
+
+			button.onClick.AddListener(() =>
+			{
+				action?.Invoke();
+				Hide();
+			});
+		}
+
+		private void ClearAllButtons()
+		{
+			for (int i = 0; i < spawnedButtons.Count; i++)
+			{
+				spawnedButtons[i].onClick.RemoveAllListeners();
+				Destroy(spawnedButtons[i].gameObject);
+			}
+
+			spawnedButtons.Clear();
+		}
+	}
 }

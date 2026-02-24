@@ -1,60 +1,65 @@
-﻿using ianco99.ToolBox.Events;
+﻿using ianco99.ToolBox.Blueprints;
+using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using System;
 using System.Collections.Generic;
+using ZooArchitect.Architecture.Data;
+using ZooArchitect.Architecture.GameLogic.Events;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
-    public sealed class Wallet : IService, IDisposable
+    public sealed class Wallet : IDataService, IDisposable
     {
-        private EventBus EventBus = ServiceProvider.Instance.GetService<EventBus>();
-        private readonly Dictionary<string, Resource> resources;
+        private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
+
+        private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
+
+        private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
+
+        private BlueprintFieldsCache BlueprintFieldsCache => ServiceProvider.Instance.GetService<BlueprintFieldsCache>();
+
         public bool IsPersistance => false;
+
+		private readonly Dictionary<string, string> resourceKeyToResourceName;
+        private readonly Dictionary<string, Resource> resources;
 
         public Wallet()
         {
             EventBus.Subscribe<AddResourceToWalletEvent>(AddResource);
             EventBus.Subscribe<RemoveResourceToWalletEvent>(RemoveResource);
 
+            resourceKeyToResourceName = new Dictionary<string, string>();
             resources = new Dictionary<string, Resource>();
 
-            CreateResource(new Resource("Plata", 0, long.MaxValue, 1000));
-            CreateResource(new Resource("Comida de Animales", 0, long.MaxValue, 50));
-            CreateResource(new Resource("Comida de Visintes", 0, long.MaxValue, 50));
-            CreateResource(new Resource("Limpieza", 0, 100, 100));
-            CreateResource(new Resource("Reputación", 0, long.MaxValue, 800));
-            CreateResource(new Resource("Trabajadores", 0, 500, 3));
-            CreateResource(new Resource("Animales", 0, 500, 0));
-
-            void CreateResource(Resource resource)
-            {
-                resources.Add(resource.Name, resource);
+			foreach (string resourceBlueprint in BlueprintRegistry.BlueprintsOf(TableNames.RESOURCES_TABLE_NAME))
+			{
+                object newResource = new Resource();
+                BlueprintBinder.Apply(ref newResource, TableNames.RESOURCES_TABLE_NAME, resourceBlueprint);
+                resourceKeyToResourceName.Add(resourceBlueprint, ((Resource)newResource).Name);
+                resources.Add(((Resource)newResource).Name, (Resource)newResource);
             }
-        }
-
-        private void RemoveResource(in RemoveResourceToWalletEvent removeResourceToWalletEvent)
-        {
-            resources[removeResourceToWalletEvent.resourceName].RemoveResource(removeResourceToWalletEvent.amount);
         }
 
         private void AddResource(in AddResourceToWalletEvent addResourceToWalletEvent)
         {
-            resources[addResourceToWalletEvent.resourceName].AddResource(addResourceToWalletEvent.amount);
+            resources[resourceKeyToResourceName[addResourceToWalletEvent.resourceName]]
+                .AddResource(addResourceToWalletEvent.amount);
         }
 
-        public void AddResource(string resource, long amount)
+        private void RemoveResource(in RemoveResourceToWalletEvent removeResourceToWlletEvent)
         {
-            resources[resource].AddResource(amount);
+            resources[resourceKeyToResourceName[removeResourceToWlletEvent.resourceName]]
+                .RemoveResource(removeResourceToWlletEvent.amount);
         }
 
-        internal void RemoveResource(string resource, long amount)
+        internal bool HasResourceAmount(string resource, long amount) 
         {
-            resources[resource].RemoveResource(amount);
+            return resources[resourceKeyToResourceName[resource]].CurrentValue >= amount;
         }
 
-        internal bool HasResourceAmount(string resource, long amount)
+        public long GetResourceAmount(string resource) 
         {
-            return resources[resource].CurrentValue >= amount;
+            return resources[resourceKeyToResourceName[resource]].CurrentValue;
         }
 
         public void Dispose()
@@ -62,5 +67,13 @@ namespace ZooArchitect.Architecture.GameLogic
             EventBus.UnSubscribe<AddResourceToWalletEvent>(AddResource);
             EventBus.UnSubscribe<RemoveResourceToWalletEvent>(RemoveResource);
         }
-    }
+
+        public string ServiceReference => TableNames.RESOURCES_TABLE_NAME;
+
+        public object GetDataValue(string[] dataPath)
+		{
+            Resource targetResource = resources[resourceKeyToResourceName[dataPath[1]]];
+            return Convert.ToInt32(BlueprintFieldsCache[typeof(Resource), dataPath[2]].GetValue(targetResource));
+		}
+	}
 }

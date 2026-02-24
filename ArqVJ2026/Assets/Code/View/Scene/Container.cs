@@ -12,8 +12,7 @@ namespace ZooArchitect.View.Scene
             instancesPerId = new Dictionary<int, GameObject>();
         }
 
-
-        public void Register(GameObject gameObject)
+        public void Register(GameObject gameObject) 
         {
             instancesPerId.Add(gameObject.GetInstanceID(), gameObject);
         }

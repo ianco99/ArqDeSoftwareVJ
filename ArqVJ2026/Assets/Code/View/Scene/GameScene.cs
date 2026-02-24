@@ -5,6 +5,7 @@ using ZooArchitect.Architecture.Math;
 using ZooArchitect.View.Controller;
 using ZooArchitect.View.Data;
 using ZooArchitect.View.Entities;
+using ZooArchitect.View.Feedback;
 using ZooArchitect.View.Resources;
 
 namespace ZooArchitect.View.Scene
@@ -25,6 +26,7 @@ namespace ZooArchitect.View.Scene
         private const string CAMERA_PREFAB_NAME = "GameCamera";
         private const string CONTEXT_MENU_PREFAB_NAME = "ContextMenuContainer";
         private const string CONTEXT_MENU_BUTTON_PREFAB_NAME = "ButtonPrefab";
+        private const string CONTEXT_MENU_LABEL_PREFAB_NAME = "LabelPrefab";
 
         private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
         private ContextMenuView ContextMenuView => ServiceProvider.Instance.GetService<ContextMenuView>();
@@ -47,6 +49,7 @@ namespace ZooArchitect.View.Scene
         {
             base.Init();
             ServiceProvider.Instance.AddService<EntityRegistryView>(new EntityRegistryView());
+            ServiceProvider.Instance.AddService<FeedbackFactory>(new FeedbackFactory());
             entityFactoryView = new EntityFactoryView();
 
             mapContainer = GameScene.AddSceneComponent<Container>(MAP_CONTAINER_NAME, this.transform);
@@ -68,10 +71,11 @@ namespace ZooArchitect.View.Scene
 
             GameObject contextMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, CONTEXT_MENU_PREFAB_NAME);
             GameObject buttonMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, CONTEXT_MENU_BUTTON_PREFAB_NAME);
+            GameObject labelMenuPrefab = PrefabsRegistryView.Get(TableNamesView.UI_VIEW_TABLE_NAME, CONTEXT_MENU_LABEL_PREFAB_NAME);
 
             ContextMenuView contextMenuView = GameScene.AddSceneComponent<ContextMenuView>(CONTECT_MENU_VIEW_NAME, canvasView.transform, contextMenuPrefab);
             ServiceProvider.Instance.AddService<ContextMenuView>(contextMenuView);
-            contextMenuView.Init(contextMenuPrefab, buttonMenuPrefab, canvasView);
+            contextMenuView.Init(contextMenuPrefab, buttonMenuPrefab, labelMenuPrefab, canvasView);
 
             GameObject cameraPrefab = PrefabsRegistryView.Get(TableNamesView.CAMERA_VIEW_TABLE_NAME, CAMERA_PREFAB_NAME);
 
@@ -109,9 +113,9 @@ namespace ZooArchitect.View.Scene
             return mapView.CoordinateToGrid(coordinate);
         }
 
-        public Vector2 PointToWorld(Point point)
+        public Vector3 PointToWorld(Point point) 
         {
-            return mapView.PointToWorld(point);
+            return mapView.PointToGrid(point);
         }
 
         public Point GetMouseGridCoordinate()
@@ -123,6 +127,8 @@ namespace ZooArchitect.View.Scene
         {
             return mapView.GetCoordinateAsPointInGrid(cameraView, coordinate);
         }
+
+        public Vector2 GetCellSize => mapView.CellSize;
 
         public override void Dispose()
         {

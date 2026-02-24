@@ -2,43 +2,43 @@
 using ianco99.ToolBox.Services;
 using System;
 using ZooArchitect.Architecture.Controllers.Events;
+using ZooArchitect.Architecture.Data;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Controllers
 {
-    public sealed class SpawnInfrastructureControllerArchitecture : IDisposable
-    {
+	public sealed class SpawnInfrastructureControllerArchitecture : IDisposable
+	{
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
 
         public SpawnInfrastructureControllerArchitecture()
-        {
-            EventBus.Subscribe<SpawnInfrastructureRequestEvent>(RequestSpawnInfrastructure);
-        }
+		{
+            EventBus.Subscribe<SpawnRequestEvent<Infrastructure>>(RequestSpawnInfrastructure);
+		}
 
-        private void RequestSpawnInfrastructure(in SpawnInfrastructureRequestEvent spawnInfrastructureRequestEvent)
-        {
-            bool collides = false;
-            Coordinate tentativeSpawnCoordinate = new Coordinate(spawnInfrastructureRequestEvent.pointToSpawn); ;
+		private void RequestSpawnInfrastructure(in SpawnRequestEvent<Infrastructure> spawnInfrastructureRequestEvent)
+		{
 
             foreach (Structure structure in EntityRegistry.Structures)
             {
-                if (structure.coordinate.Overlaps(tentativeSpawnCoordinate))
+                if (structure.coordinate.Overlaps(spawnInfrastructureRequestEvent.coordinateToSpawn))
                 {
-                    EventBus.Raise<SpawnInfrastructureRequestRejectedEvent>
-                        (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.pointToSpawn);
+                    EventBus.Raise<SpawnRequestRejectedEvent<Infrastructure>>
+                        (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.coordinateToSpawn);
                     return;
                 }
             }
 
-            EventBus.Raise<SpawnInfrastructureRequestAcceptedEvent>
-                (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.pointToSpawn);
+            EventBus.Raise<SpawnRequestAcceptedEvent<Infrastructure>>
+                   (spawnInfrastructureRequestEvent.blueprintToSpawn, spawnInfrastructureRequestEvent.coordinateToSpawn, 
+                   TableNames.INFTRASTRUCTURE_TABLE_NAME);
         }
 
-        public void Dispose()
-        {
-            EventBus.UnSubscribe<SpawnInfrastructureRequestEvent>(RequestSpawnInfrastructure);
+		public void Dispose()
+		{
+            EventBus.UnSubscribe<SpawnRequestEvent<Infrastructure>>(RequestSpawnInfrastructure);
         }
     }
 

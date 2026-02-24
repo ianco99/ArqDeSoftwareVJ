@@ -16,7 +16,6 @@ namespace ZooArchitect.Architecture.GameLogic
         private BlueprintRegistry BlueprintRegistry => ServiceProvider.Instance.GetService<BlueprintRegistry>();
         private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
 
-
         private uint sizeX;
         private uint sizeY;
 
@@ -29,10 +28,23 @@ namespace ZooArchitect.Architecture.GameLogic
         private List<string> uniqueTileDefinitions;
         public IReadOnlyList<string> UniqueTileDefinitions => uniqueTileDefinitions;
 
+        private string habitatTileDefinition;
+        public string HabitatTileDefinition => habitatTileDefinition;
+
+        private string habitatWallTileDefinition;
+        public string HabitatWallTileDefinition => habitatWallTileDefinition;
+
+        private string humanEntryTileDefinition;
+        public string HumanEntryTileDefinition => humanEntryTileDefinition;
+
+        private string humanExitTileDefinition;
+        public string HumanExitTileDefinition => humanExitTileDefinition;
+
         public bool HasInstancesOf(string tileID) => instances.ContainsKey(tileID) && instances[tileID].Count > 0;
         public int GetInstanceAmountOf(string tileID) => instances[tileID].Count;
 
         public IEnumerable<string> GetTileDefinitionIDs => tileHashToName.Values;
+
 
         public Map(uint sizeX, uint sizeY)
         {
@@ -58,9 +70,29 @@ namespace ZooArchitect.Architecture.GameLogic
                     throw new DataEntryException($"Failed to read {TableNames.TILE_TYPES_TABLE_NAME} - {tileTypeID}\n({exception.Message})");
                 }
 
+                if (((TileData)tileData).isAnimalHabitat)
+                {
+                    habitatTileDefinition = tileTypeID;
+                }
+
+                if (((TileData)tileData).isAnimalHabitatWall)
+                {
+                    habitatWallTileDefinition = tileTypeID;
+                }
+
                 if (((TileData)tileData).isUnique)
                 {
                     uniqueTileDefinitions.Add(tileTypeID);
+                }
+
+                if (((TileData)tileData).canSpawnHumans)
+                {
+                    humanEntryTileDefinition = tileTypeID;
+                }
+
+                if (((TileData)tileData).canDispawnHumans)
+                {
+                    humanExitTileDefinition = tileTypeID;
                 }
 
                 tileDatas.Add(tileTypeID.GetHashCode(), (TileData)tileData);
@@ -129,11 +161,26 @@ namespace ZooArchitect.Architecture.GameLogic
 
             foreach (Point point in coordinate.Points)
             {
-                if (point.X >= mapSize.x || point.X < 0 || point.Y >= mapSize.y || point.Y < 0)
+                if (point.x >= mapSize.x || point.x < 0 || point.y >= mapSize.y || point.y < 0)
                     return false;
             }
 
             return true;
+        }
+
+        public Point GetHumanEntryPoint()
+        {
+            return new Point(instances[humanEntryTileDefinition][0].x, instances[humanEntryTileDefinition][0].y);
+        }
+
+        public Point GetHumanExitPoint()
+        {
+            return new Point(instances[humanExitTileDefinition][0].x, instances[humanExitTileDefinition][0].y);
+        }
+
+        public Coordinate GetCoordinate()
+        {
+            return new Coordinate(new Point(0, 0), new Point(Convert.ToInt32(sizeX), Convert.ToInt32(sizeY)));
         }
     }
 }

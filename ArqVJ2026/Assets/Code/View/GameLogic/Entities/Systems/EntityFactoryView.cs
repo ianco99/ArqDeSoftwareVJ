@@ -1,4 +1,5 @@
-﻿using ianco99.ToolBox.Events;
+﻿using ianco99.ToolBox.Blueprints;
+using ianco99.ToolBox.Events;
 using ianco99.ToolBox.Services;
 using System;
 using System.Collections.Generic;
@@ -13,72 +14,76 @@ using ZooArchitect.View.Scene;
 
 namespace ZooArchitect.View.Entities
 {
-    [ViewOf(typeof(EntityFactory))]
-    internal sealed class EntityFactoryView : IDisposable
-    {
-        private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
-        private EntityRegistryView EntityRegistryView => ServiceProvider.Instance.GetService<EntityRegistryView>();
-        private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
-        private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
+	[ViewOf(typeof(EntityFactory))]
+	internal sealed class EntityFactoryView : IDisposable
+	{
+		private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
+		private EntityRegistryView EntityRegistryView => ServiceProvider.Instance.GetService<EntityRegistryView>();
+		private PrefabsRegistryView PrefabsRegistryView => ServiceProvider.Instance.GetService<PrefabsRegistryView>();
+		private EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
 
-        private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
+		private GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
 
-        private MethodInfo registerEntityMethod;
-        private MethodInfo setEntityIdMethod;
+		private BlueprintBinder BlueprintBinder => ServiceProvider.Instance.GetService<BlueprintBinder>();
 
-        public EntityFactoryView()
-        {
-            EventBus.Subscribe<EntityCreatedEvent<Entity>>(OnEntityCreated);
+		private MethodInfo registerEntityMethod;
+		private MethodInfo setEntityIdMethod;
 
-            registerEntityMethod = EntityRegistryView.GetType().GetMethod(EntityRegistryView.RegisterMethodName,
-                BindingFlags.NonPublic | BindingFlags.Instance);
+		public EntityFactoryView()
+		{
+			EventBus.Subscribe<EntityCreatedEvent<Entity>>(OnEntityCreated);
 
-            setEntityIdMethod = typeof(EntityView).GetMethod(EntityView.SetIdMethodName,
-                BindingFlags.NonPublic | BindingFlags.Instance);
-        }
+			registerEntityMethod = EntityRegistryView.GetType().GetMethod(EntityRegistryView.RegisterMethodName,
+				BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private void OnEntityCreated(in EntityCreatedEvent<Entity> entityCreatedEvent)
-        {
-            bool IsSingleCoordinate = EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate.IsSingleCoordinate;
+			setEntityIdMethod = typeof(EntityView).GetMethod(EntityView.SetIdMethodName,
+				BindingFlags.NonPublic | BindingFlags.Instance);
+		}
 
-            List<object> parameters = new List<object>();
+		private void OnEntityCreated(in EntityCreatedEvent<Entity> entityCreatedEvent)
+		{
+			bool IsSingleCoordinate = EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate.IsSingleCoordinate;
+			List<object> parameters = new List<object>();
 
-            GameObject prefab = PrefabsRegistryView.Get(TableNamesView.ArchitectureToViewTable[entityCreatedEvent.blueprintTable]);
+			GameObject prefab = PrefabsRegistryView.Get(TableNamesView.ArchitectureToView[entityCreatedEvent.blueprintTable], entityCreatedEvent.blueprintId);
 
-            GameObject objectToInstance = IsSingleCoordinate ? prefab : null;
+			GameObject objectToInstance = IsSingleCoordinate ? prefab : null;
 
-            ViewComponent viewComponent = GameScene.AddSceneComponent(
-              ViewToArchitectureMap.ViewOf(EntityRegistry[entityCreatedEvent.entityCreatedId].GetType()),
-              PrefabsRegistryView.Get(TableNamesView.ArchitectureToViewTable[entityCreatedEvent.blueprintTable], entityCreatedEvent.blueprintId).name + $"  -  Architecture type: {EntityRegistry[entityCreatedEvent.entityCreatedId].GetType().Name} - ID: {entityCreatedEvent.entityCreatedId}",
-              GameScene.EntitiesContainer.transform,
-              prefab);
+			string viewTable = TableNamesView.ArchitectureToView[entityCreatedEvent.blueprintTable];
 
-            viewComponent.transform.position = GameScene.CoordinateToWorld(EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate);
+			object viewComponent = GameScene.AddSceneComponent(
+			   ViewArchitectureMap.ViewOf(EntityRegistry[entityCreatedEvent.entityCreatedId].GetType()),
+			   PrefabsRegistryView.Get(viewTable, entityCreatedEvent.blueprintId).name + $"  -  Architecture type: {EntityRegistry[entityCreatedEvent.entityCreatedId].GetType().Name} - ID: {entityCreatedEvent.entityCreatedId}",
+			   GameScene.EntitiesContainer.transform,
+			   objectToInstance);
 
-            if (IsSingleCoordinate)
-            {
-                SpriteRenderer sprite = viewComponent.GetComponent<SpriteRenderer>();
-                sprite.sortingOrder = GameScene.ENTITIES_DRAWING_ORDER;
+			(viewComponent as ViewComponent).transform.position = GameScene.CoordinateToWorld(EntityRegistry[entityCreatedEvent.entityCreatedId].coordinate);
 
-                
-            }
-            else
-            {
-                parameters.Add(prefab);
-            }
+			BlueprintBinder.Apply(ref viewComponent, viewTable, PrefabsRegistryView.ArchiectureToViewId(viewTable, entityCreatedEvent.blueprintId));
 
-            setEntityIdMethod.Invoke(viewComponent, new object[] { entityCreatedEvent.entityCreatedId });
+			if (IsSingleCoordinate)
+			{
+				SpriteRenderer sprite = (viewComponent as ViewComponent).GetComponent<SpriteRenderer>();
+				sprite.sortingOrder = GameScene.ENTITIES_DRAWING_ORDER;
+			}
+			else
+			{
+				parameters.Add(prefab);
+				parameters.Add(GameScene.ENTITIES_DRAWING_ORDER);
+			}
 
-            viewComponent.Init(parameters.ToArray());
+			setEntityIdMethod.Invoke(viewComponent, new object[] { entityCreatedEvent.entityCreatedId });
 
-            registerEntityMethod.Invoke(EntityRegistryView, new object[] { viewComponent });
+			(viewComponent as ViewComponent).Init(parameters.ToArray());
 
-            viewComponent.LateInit();
-        }
+			registerEntityMethod.Invoke(EntityRegistryView, new object[] { viewComponent });
 
-        public void Dispose()
-        {
-            EventBus.UnSubscribe<EntityCreatedEvent<Entity>>(OnEntityCreated);
-        }
-    }
+			(viewComponent as ViewComponent).LateInit();
+		}
+
+		public void Dispose()
+		{
+			EventBus.UnSubscribe<EntityCreatedEvent<Entity>>(OnEntityCreated);
+		}
+	}
 }

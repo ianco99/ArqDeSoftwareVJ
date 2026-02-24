@@ -1,5 +1,6 @@
-﻿using ianco99.ToolBox.DataFlow;
+﻿using ianco99.ToolBox.Scheduling;
 using ianco99.ToolBox.Services;
+using ianco99.ToolBox.DataFlow;
 
 namespace ZooArchitect.Architecture.GameLogic
 {
@@ -7,8 +8,8 @@ namespace ZooArchitect.Architecture.GameLogic
     {
         public bool IsPersistance => false;
 
-        private float timeMultiplier;
         private float lastDeltaTime;
+        private float timeMultiplier;
         public float LogicDeltaTime => lastDeltaTime * timeMultiplier;
 
         public Time()
@@ -21,6 +22,4 @@ namespace ZooArchitect.Architecture.GameLogic
             lastDeltaTime = deltaTime;
         }
     }
-
-    
 }

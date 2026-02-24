@@ -1,6 +1,5 @@
 ﻿using ianco99.ToolBox.Services;
 using System;
-using UnityEngine;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.Math;
 using ZooArchitect.View.Mapping;
@@ -13,22 +12,23 @@ namespace ZooArchitect.View.Entities
     {
         protected EntityRegistry EntityRegistry => ServiceProvider.Instance.GetService<EntityRegistry>();
         protected GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
+
         public abstract Type ArchitectureEntityType { get; }
+
+        protected uint archiectureEntitiyID;
+        public uint ArchitectureEnitityID => archiectureEntitiyID;
+        protected Entity ArchitectureEntity => EntityRegistry.GetAs<Entity>(archiectureEntitiyID);
 
         public static string SetIdMethodName => nameof(SetId);
         private void SetId(uint ID)
         {
-            architectureEntityID = ID;
+            archiectureEntitiyID = ID;
         }
 
-        public void Move(Coordinate coordinate)
+        public void Move(Coordinate coordinate) 
         {
             transform.position = GameScene.CoordinateToWorld(coordinate);
         }
-
-        public uint ArchitectureEntityID => architectureEntityID;
-        protected uint architectureEntityID;
-
-        protected Entity ArchitectureEntity => EntityRegistry.GetAs<Entity>(architectureEntityID);
     }
+
 }

@@ -14,6 +14,11 @@ namespace ianco99.ToolBox.Cast
         private static readonly Dictionary<Type, bool> isGenericCollections = new Dictionary<Type, bool>();
         private static readonly Dictionary<Type, bool> isDictionary = new Dictionary<Type, bool>();
 
+        public static T Convert<T>(string value) 
+        {
+            return (T)Convert(value, typeof(T));
+        }
+
         public static object Convert(string value, Type targetType)
         {
             try
@@ -57,6 +62,7 @@ namespace ianco99.ToolBox.Cast
             {
                 throw new InvalidCastException($"Failed to convert {value} into {targetType.Name}");
             }
+            
         }
 
         private static object ConvertDictionary(string value, Type dictionaryType)

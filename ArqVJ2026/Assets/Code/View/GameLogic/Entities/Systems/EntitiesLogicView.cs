@@ -9,7 +9,7 @@ using ZooArchitect.View.Mapping;
 namespace ZooArchitect.View.Entities
 {
     [ViewOf(typeof(EntitiesLogic))]
-    internal sealed class EntitiesLogicView : IInitable, ITickable, IDisposable
+    internal sealed class EntitiesLogicView : IInitable ,ITickable, IDisposable
     {
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
 
@@ -21,13 +21,13 @@ namespace ZooArchitect.View.Entities
         {
             animalsLogicView = new AnimalsLogicView();
             EventBus.Subscribe<EntityMovedEvent>(OnEntityMoved);
-            EventBus.Subscribe<OnAnimalFeedSuccess>(AnimalFeedSuccess);
+            EventBus.Subscribe<OnAnimalFeedSucsess>(AnimalFeedSucsess);
             EventBus.Subscribe<OnAnimalFeedFail>(AnimalFeedFail);
         }
 
-        private void AnimalFeedSuccess(in OnAnimalFeedSuccess onAnimalFeedSucsess)
+        private void AnimalFeedSucsess(in OnAnimalFeedSucsess onAnimalFeedSucsess)
         {
-            animalsLogicView.OnFeedAnimalSuccess(onAnimalFeedSucsess.animalID);
+            animalsLogicView.OnFeedAnimalSucsess(onAnimalFeedSucsess.animalID);
         }
 
         private void AnimalFeedFail(in OnAnimalFeedFail onAnimalFeedFail)
@@ -59,7 +59,7 @@ namespace ZooArchitect.View.Entities
         {
             animalsLogicView.Dispose();
             EventBus.UnSubscribe<EntityMovedEvent>(OnEntityMoved);
-            EventBus.UnSubscribe<OnAnimalFeedSuccess>(AnimalFeedSuccess);
+            EventBus.UnSubscribe<OnAnimalFeedSucsess>(AnimalFeedSucsess);
             EventBus.UnSubscribe<OnAnimalFeedFail>(AnimalFeedFail);
         }
 

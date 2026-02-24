@@ -7,7 +7,6 @@ using ZooArchitect.Architecture.Controllers;
 using ZooArchitect.Architecture.Controllers.Events;
 using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.GameLogic;
-using ZooArchitect.Architecture.GameLogic.Controllers;
 using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture
@@ -17,13 +16,15 @@ namespace ZooArchitect.Architecture
         public bool IsPersistance => false;
 
         private EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
+        private EntityFactory EntityFactory => ServiceProvider.Instance.GetService<EntityFactory>();
         private EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
+
         private Wallet Wallet => ServiceProvider.Instance.GetService<Wallet>();
 
-        private SpawnAnimalControllerArchitecture spawnAnimalControllerAchitecture;
-
+        private SpawnAnimalControllerArchitecture spawnAnmalControllerArchitecture;
         private TerrainModifierControllerArchitecture terrainModifierControllerArchitecture;
         private SpawnJailControllerArchitecture spawnJailControllerArchitecture;
+        private SpawnInfrastructureControllerArchitecture spawnInfrastructureControllerArchitecture;
 
         private Map map;
 
@@ -35,15 +36,17 @@ namespace ZooArchitect.Architecture
             ServiceProvider.Instance.AddService<EntityRegistry>(new EntityRegistry());
             ServiceProvider.Instance.AddService<EntityFactory>(new EntityFactory());
             ServiceProvider.Instance.AddService<EntitiesLogic>(new EntitiesLogic());
+
         }
 
         public void LateInit()
         {
             map = new Map(100, 100);
             EventBus.Subscribe<ModifyTerrainRequestAceptedEvent>(OnModifyTerrainRequestAcepted);
-            spawnAnimalControllerAchitecture = new SpawnAnimalControllerArchitecture();
+            spawnAnmalControllerArchitecture = new SpawnAnimalControllerArchitecture();
             terrainModifierControllerArchitecture = new TerrainModifierControllerArchitecture();
             spawnJailControllerArchitecture = new SpawnJailControllerArchitecture();
+            spawnInfrastructureControllerArchitecture = new SpawnInfrastructureControllerArchitecture();
         }
 
         public void Tick(float deltaTime)
@@ -54,10 +57,13 @@ namespace ZooArchitect.Architecture
         public void Dispose()
         {
             EventBus.UnSubscribe<ModifyTerrainRequestAceptedEvent>(OnModifyTerrainRequestAcepted);
-            spawnAnimalControllerAchitecture.Dispose();
+
+            spawnAnmalControllerArchitecture.Dispose();
             terrainModifierControllerArchitecture.Dispose();
             spawnJailControllerArchitecture.Dispose();
+            spawnInfrastructureControllerArchitecture.Dispose();
             EntitiesLogic.Dispose();
+            EntityFactory.Dispose();
             Wallet.Dispose();
         }
 
@@ -76,6 +82,7 @@ namespace ZooArchitect.Architecture
                 {
                     output.Remove(uniqueTileDefinition);
                 }
+                
             }
             else
             {
@@ -88,18 +95,29 @@ namespace ZooArchitect.Architecture
                 }
             }
 
+            output.Remove(map.HabitatTileDefinition);
+            output.Remove(map.HabitatWallTileDefinition);
+
             return output;
         }
 
-        private void OnModifyTerrainRequestAcepted(in ModifyTerrainRequestAceptedEvent modifyTerrainRecuestAceptedEvent)
+        private void OnModifyTerrainRequestAcepted(in ModifyTerrainRequestAceptedEvent modifyTerrainRequestAceptedEvent)
         {
-            for (int x = modifyTerrainRecuestAceptedEvent.origin.X; x <= modifyTerrainRecuestAceptedEvent.end.X; x++)
+            for (int x = modifyTerrainRequestAceptedEvent.origin.x; x <= modifyTerrainRequestAceptedEvent.end.x; x++)
             {
-                for (int y = modifyTerrainRecuestAceptedEvent.origin.Y; y <= modifyTerrainRecuestAceptedEvent.end.Y; y++)
+                for (int y = modifyTerrainRequestAceptedEvent.origin.y; y <= modifyTerrainRequestAceptedEvent.end.y; y++)
                 {
-                    map.SwapTile((x, y), modifyTerrainRecuestAceptedEvent.newTileId);
+                    map.SwapTile((x,y), modifyTerrainRequestAceptedEvent.newTileId);
                 }
             }
         }
+
+        public Coordinate MapCoordinate => map.GetCoordinate();
+        public string HabitatTileDefinition => map.HabitatTileDefinition;
+        public string HabitatWallTileDefinition => map.HabitatWallTileDefinition;
+        public bool HasHumanEntryPoint => map.HasInstancesOf(map.HumanEntryTileDefinition);
+        public Point HumanEntryPoint => map.GetHumanEntryPoint();
+        public bool HasHumanExitPoint => map.HasInstancesOf(map.HumanExitTileDefinition);
+        public Point HumanExitPoint => map.GetHumanExitPoint();
     }
 }

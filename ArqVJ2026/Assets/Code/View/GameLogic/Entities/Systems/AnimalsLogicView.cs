@@ -26,9 +26,9 @@ namespace ZooArchitect.View.Entities
         {
         }
 
-        internal void OnFeedAnimalSuccess(uint animalID)
+        internal void OnFeedAnimalSucsess(uint animalID)
         {
-            EntityRegistryView.GetAs<AnimalView>(animalID).OnFeedSuccess();
+            EntityRegistryView.GetAs<AnimalView>(animalID).OnFeedSucsess();
         }
 
         internal void OnFeedAnimalFail(uint animalID)

@@ -1,39 +1,39 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 
 namespace ianco99.ToolBox.Pool
 {
-    public class ConcurrentPool
+    public sealed class ConcurrentPool
     {
-        private readonly ConcurrentDictionary<Type, ConcurrentStack<IResetteable>> concurrentPool = new ConcurrentDictionary<Type, ConcurrentStack<IResetteable>>();
+        private readonly ConcurrentDictionary<Type, ConcurrentStack<IResettable>> concurrentPool =
+            new ConcurrentDictionary<Type, ConcurrentStack<IResettable>>();
 
-        public ResetteableType Get<ResetteableType>(params object[] parameters) where ResetteableType : IResetteable
+        public ResettableType Get<ResettableType>(params object[] parameters) where ResettableType : IResettable 
         {
-            Type reseteableType = typeof(ResetteableType);
-            if (!concurrentPool.ContainsKey(reseteableType))
-            {
-                concurrentPool.TryAdd(reseteableType, new ConcurrentStack<IResetteable>());
-            }
+            Type ressetteableType = typeof(ResettableType);
+            if (!concurrentPool.ContainsKey(ressetteableType))
+                concurrentPool.TryAdd(ressetteableType, new ConcurrentStack<IResettable>());
 
-            ResetteableType value;
-            if (concurrentPool[reseteableType].Count > 0)
+            ResettableType value;
+            if (concurrentPool[ressetteableType].Count > 0)
             {
-                concurrentPool[reseteableType].TryPop(out IResetteable resetteable);
-                value = (ResetteableType)resetteable;
+                concurrentPool[ressetteableType].TryPop(out IResettable resettable);
+                value = (ResettableType)resettable;
             }
             else
             {
-                value = (ResetteableType)Activator.CreateInstance(reseteableType);
+                value = (ResettableType)Activator.CreateInstance(ressetteableType);
             }
 
             value.Assign(parameters);
             return value;
         }
 
-        public void Release<ReseteableType>(ReseteableType resetteable) where ReseteableType : IResetteable
+        public void Release<ResettableType>(ResettableType ressettable) where ResettableType : IResettable 
         {
-            resetteable.Reset();
-            concurrentPool[typeof(ReseteableType)].Push(resetteable);
+            ressettable.Reset();
+            concurrentPool[typeof(ResettableType)].Push(ressettable);
         }
     }
 }

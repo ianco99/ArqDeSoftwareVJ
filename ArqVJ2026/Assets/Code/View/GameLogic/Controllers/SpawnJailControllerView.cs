@@ -1,7 +1,8 @@
-﻿using System;
+﻿using ZooArchitect.Architecture.Controllers;
 using ZooArchitect.Architecture.Controllers.Events;
-using ZooArchitect.Architecture.GameLogic.Controllers;
+using ZooArchitect.Architecture.Entities;
 using ZooArchitect.Architecture.Logs;
+using ZooArchitect.Architecture.Math;
 using ZooArchitect.View.Mapping;
 
 namespace ZooArchitect.View.Controller
@@ -11,24 +12,32 @@ namespace ZooArchitect.View.Controller
     {
         public SpawnJailControllerView()
         {
-            EventBus.Subscribe<SpawnJailRequestRejectedEvent>(OnSpawnJailRequestRejected);
-        }
-
-
-
-        private void OnSpawnJailRequestRejected(in SpawnJailRequestRejectedEvent callback)
-        {
-            GameConsole.Log("Spawn jail rejected! Reason mmesage: " + callback.message);
+            EventBus.Subscribe<SpawnRequestRejectedEvent<Jail>>(OnSpawnJailRequestRejected);
+            EventBus.Subscribe<SpawnRequestAcceptedEvent<Jail>>(OnSpawnJailRequestAccepted);
         }
 
         public override void CreateController()
         {
-         EventBus.Raise<SpawnJailRequestEvent>(StartGroupClickPosition, FinishGroupClickPosition, EntitiesLogic.GetJailBlueprint());
+            EventBus.Raise<SpawnRequestEvent<Jail>>(
+                EntitiesLogic.GetJailBlueprint(),
+                new Coordinate(StartGroupClickPosition, FinishGroupClickPosition));
+        }
+
+        private void OnSpawnJailRequestRejected(in SpawnRequestRejectedEvent<Jail> spawnJainRequestRejectedEvent)
+        {
+            GameConsole.Log("Spawn jail rejected!");
+            FeedbackFactory.SpawnNegativeFeedback(new UnityEngine.Vector3(spawnJainRequestRejectedEvent.coordiateToSpawn.End.x, spawnJainRequestRejectedEvent.coordiateToSpawn.End.y));
+        }
+
+        private void OnSpawnJailRequestAccepted(in SpawnRequestAcceptedEvent<Jail> spawnJailRequestAcceptedEvent)
+        {
+            FeedbackFactory.SpawnPositiveFeedback(new UnityEngine.Vector3(spawnJailRequestAcceptedEvent.coordinateToSpawn.End.x, spawnJailRequestAcceptedEvent.coordinateToSpawn.End.y));
         }
 
         public override void Dispose()
         {
-            EventBus.UnSubscribe<SpawnJailRequestRejectedEvent>(OnSpawnJailRequestRejected);
+            EventBus.UnSubscribe<SpawnRequestRejectedEvent<Jail>>(OnSpawnJailRequestRejected);
+            EventBus.UnSubscribe<SpawnRequestAcceptedEvent<Jail>>(OnSpawnJailRequestAccepted);
         }
     }
 }

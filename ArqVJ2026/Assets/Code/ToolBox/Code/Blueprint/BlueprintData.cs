@@ -6,13 +6,28 @@ namespace ianco99.ToolBox.Blueprints
     internal sealed class BlueprintData
     {
         private const int OFFSET = 1;
-        internal string this[string blueprintID, string parameter] => 
-            rawContent[blueprintIDs.IndexOf(blueprintID) + OFFSET, parameters.IndexOf(parameter) + OFFSET];
+        internal string this[string blueprintID, string parameter]
+        {
+            get
+            {
+                int indexOfBlueprintID = bluprintIDs.IndexOf(blueprintID);
+                int indexOfParameter = parameters.IndexOf(parameter);
+
+                if (indexOfBlueprintID == -1)
+                    throw new System.MissingFieldException($"Missing bluprint id: {blueprintID}");
+
+                if (indexOfParameter == -1)
+                    throw new System.MissingFieldException($"Missing parameter: {parameter}");
+
+                return rawContent[indexOfBlueprintID + OFFSET, indexOfParameter + OFFSET];
+            }
+        }
+
 
         private readonly string[,] rawContent;
-        private readonly List<string> blueprintIDs;
+        private readonly List<string> bluprintIDs;
         private readonly List<string> parameters;
-        internal List<string> BlueprintIDs => blueprintIDs;
+        internal List<string> BluprintIDs => bluprintIDs;
         internal List<string> Parameters => parameters;
 
         public BlueprintData(ISheet sheet)
@@ -66,10 +81,10 @@ namespace ianco99.ToolBox.Blueprints
                 }
             }
 
-            blueprintIDs = new List<string>();
+            bluprintIDs = new List<string>();
             for (int i = OFFSET; i < rawContent.GetLength(0); i++)
             {
-                blueprintIDs.Add(rawContent[i, 0]);
+                bluprintIDs.Add(rawContent[i, 0]);
             }
 
             parameters = new List<string>();

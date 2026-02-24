@@ -1,9 +1,9 @@
-using ianco99.ToolBox.Events;
+﻿using ianco99.ToolBox.Events;
 using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Controllers.Events
 {
-    public struct ModifyTerrainRecuestRejectedEvent : IEvent
+    public struct ModifyTerrainRequestRejectedEvent : IEvent
     {
         public Point origin;
         public Point end;

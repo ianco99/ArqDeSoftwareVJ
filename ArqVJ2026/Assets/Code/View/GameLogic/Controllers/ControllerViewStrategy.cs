@@ -1,10 +1,6 @@
-using ianco99.ToolBox.DataFlow;
+﻿using ianco99.ToolBox.DataFlow;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ZooArchitect.View.Controller
@@ -22,6 +18,7 @@ namespace ZooArchitect.View.Controller
             {KeyCode.Alpha2, typeof(SpawnInfrastructureControllerView) },
             {KeyCode.Alpha3, typeof(TerrainModifierControllerView) },
             {KeyCode.Alpha4, typeof(SpawnJailControllerView) },
+            {KeyCode.I, typeof(BuyControllerView)}
         };
 
         public ControllerViewStrategy()
@@ -32,6 +29,7 @@ namespace ZooArchitect.View.Controller
             controllers.Add(typeof(SpawnInfrastructureControllerView), new SpawnInfrastructureControllerView());
             controllers.Add(typeof(SpawnJailControllerView), new SpawnJailControllerView());
             controllers.Add(typeof(TerrainModifierControllerView), new TerrainModifierControllerView());
+            controllers.Add(typeof(BuyControllerView), new BuyControllerView());
         }
 
         public void Tick(float deltaTime)
@@ -41,6 +39,7 @@ namespace ZooArchitect.View.Controller
                 if (Input.GetKeyDown(strategyBinding.Key))
                 {
                     currentStrategyType = strategyBinding.Value;
+                    controllers[currentStrategyType].OnSelect();
                 }
             }
 

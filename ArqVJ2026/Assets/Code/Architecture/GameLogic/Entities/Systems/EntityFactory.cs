@@ -1,13 +1,13 @@
-﻿using ianco99.ToolBox.Services;
-using ZooArchitect.Architecture.Math;
-using System.Reflection;
+﻿using ianco99.ToolBox.Blueprints;
+using ianco99.ToolBox.Events;
+using ianco99.ToolBox.Services;
 using System;
 using System.Collections.Generic;
-using ianco99.ToolBox.Events;
-using ZooArchitect.Architecture.Entities.Events;
-using ianco99.ToolBox.Blueprints;
-using ZooArchitect.Architecture.Data;
+using System.Reflection;
 using ZooArchitect.Architecture.Controllers.Events;
+using ZooArchitect.Architecture.Data;
+using ZooArchitect.Architecture.Entities.Events;
+using ZooArchitect.Architecture.Math;
 
 namespace ZooArchitect.Architecture.Entities
 {
@@ -20,43 +20,51 @@ namespace ZooArchitect.Architecture.Entities
 
         private uint lastAssignedEntityId;
         public bool IsPersistance => false;
-
         private Dictionary<Type, ConstructorInfo> entityConstructors;
         private MethodInfo registerEntityMethod;
         private MethodInfo raiseEntityCreatedMethod;
+
+
+        private Dictionary<Type, object> creationSubsctiptions;
+        private MethodInfo subscriveToCreationMethod;
+        private MethodInfo unsubscriveMethod;
 
         public EntityFactory()
         {
             this.lastAssignedEntityId = Entity.UNASSIGNED_ENTITY_ID;
             entityConstructors = new Dictionary<Type, ConstructorInfo>();
-
+            creationSubsctiptions = new Dictionary<Type, object>();
             registerEntityMethod = EntityRegistry.GetType().GetMethod(EntityRegistry.RegisterMethodName,
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
             raiseEntityCreatedMethod = GetType().GetMethod(nameof(RaiseEntityCreated), BindingFlags.NonPublic | BindingFlags.Instance);
 
+            subscriveToCreationMethod = GetType().GetMethod(nameof(SubscribeToCreation), BindingFlags.NonPublic | BindingFlags.Instance);
+            unsubscriveMethod = typeof(EventBus).GetMethod(nameof(EventBus.UnSubscribe), BindingFlags.Public | BindingFlags.Instance);
             RegisterEntityMethods();
-
-            EventBus.Subscribe<SpawnAnimalRequestAcceptedEvent>(SpawnAnimal);
-            EventBus.Subscribe<SpawnJailRequestAcceptedEvent>(SpawnJail);
-            EventBus.Subscribe<SpawnInfrastructureRequestAcceptedEvent>(SpawnInfrastrcture);
         }
 
-        private void SpawnInfrastrcture(in SpawnInfrastructureRequestAcceptedEvent spawnInfrastructureRequestAcceptedEvent)
+        private void SubscribeToCreation<EntityType>() where EntityType : Entity
         {
-            //Todo create infrastructure
-            CreateInstance<Infrastructure>(spawnInfrastructureRequestAcceptedEvent.blueprintToSpawn, new Coordinate(spawnInfrastructureRequestAcceptedEvent.coordinateToSpawn), TableNames.INFRASTRUCTURE_TABLE_NAME);
+            EventBus.EventCallback<SpawnRequestAcceptedEvent<EntityType>> callback =
+                EventBus.SubscribeAndReturn<SpawnRequestAcceptedEvent<EntityType>>(SpawnEntity);
+            creationSubsctiptions.Add(typeof(SpawnRequestAcceptedEvent<EntityType>), callback);
+
+            void SpawnEntity(in SpawnRequestAcceptedEvent<EntityType> callback)
+            {
+                CreateInstance<EntityType>(callback.blueprintToSpawn,
+                 callback.coordinateToSpawn,
+                 callback.blueprintTable);
+            }
         }
 
-        private void SpawnJail(in SpawnJailRequestAcceptedEvent spawnJailRequestAcceptedEvent)
+        private void UnsubscribeToCreation()  
         {
-            //Todo create Jail
-            CreateInstance<Jail>(spawnJailRequestAcceptedEvent.blueprintName, new Coordinate(spawnJailRequestAcceptedEvent.origin, spawnJailRequestAcceptedEvent.end), TableNames.JAILS_TABLE_NAME);
-        }
-
-        private void SpawnAnimal(in SpawnAnimalRequestAcceptedEvent spawnAnimalRequestAceptedEvent)
-        {
-            CreateInstance<Animal>(spawnAnimalRequestAceptedEvent.blueprintToSpawn, new Coordinate(spawnAnimalRequestAceptedEvent.pointToSpawn), TableNames.ANIMALS_TABLE_NAME);
+            foreach (KeyValuePair<Type, object> methodsToUnsubscribe in creationSubsctiptions)
+            {
+                unsubscriveMethod.MakeGenericMethod(methodsToUnsubscribe.Key).
+                    Invoke(EventBus, new object[] { methodsToUnsubscribe.Value });
+            }
         }
 
         public void CreateInstance<EntityType>(string blueprintId, Coordinate coordinate, string tableName) where EntityType : Entity
@@ -97,7 +105,8 @@ namespace ZooArchitect.Architecture.Entities
 
         private void RaiseEntityCreated<EntityType>(string blueprintId, string blueprintTable, EntityType newEntity) where EntityType : Entity
         {
-            EventBus.Raise<EntityCreatedEvent<EntityType>>(blueprintId, blueprintTable, newEntity.ID, newEntity.coordinate.Origin, newEntity.coordinate.End);
+            EventBus.Raise<EntityCreatedEvent<EntityType>>(blueprintId, blueprintTable, newEntity.ID,
+                newEntity.coordinate.Origin, newEntity.coordinate.End);
         }
 
         private void RegisterEntityMethods()
@@ -109,6 +118,7 @@ namespace ZooArchitect.Architecture.Entities
                     if (typeof(Entity).IsAssignableFrom(type))
                     {
                         RegisterEntity(type);
+                        subscriveToCreationMethod.MakeGenericMethod(type).Invoke(this, new object[0]);
                     }
                 }
             }
@@ -131,9 +141,7 @@ namespace ZooArchitect.Architecture.Entities
 
         public void Dispose()
         {
-            EventBus.UnSubscribe<SpawnAnimalRequestAcceptedEvent>(SpawnAnimal);
-            EventBus.UnSubscribe<SpawnJailRequestAcceptedEvent>(SpawnJail);
-            EventBus.UnSubscribe<SpawnInfrastructureRequestAcceptedEvent>(SpawnInfrastrcture);
+            UnsubscribeToCreation();
         }
     }
 }

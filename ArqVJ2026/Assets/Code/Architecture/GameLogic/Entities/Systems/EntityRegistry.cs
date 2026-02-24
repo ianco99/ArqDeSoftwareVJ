@@ -21,7 +21,7 @@ namespace ZooArchitect.Architecture.Entities
 
         internal string RegisterMethodName => nameof(Register);
 
-        private void Register(Entity entity)
+        private void Register(Entity entity) 
         {
             entities.Add(entity.ID, entity);
             Type currentEntityType = null;
@@ -34,7 +34,7 @@ namespace ZooArchitect.Architecture.Entities
             } while (currentEntityType != typeof(Entity));
         }
 
-        public EntityType GetAs<EntityType>(uint ID) where EntityType : Entity
+        public EntityType GetAs<EntityType>(uint ID) where EntityType : Entity 
         {
             if (ID == Entity.UNASSIGNED_ENTITY_ID)
             {
@@ -65,7 +65,7 @@ namespace ZooArchitect.Architecture.Entities
         public IEnumerable<Worker> Workers => FilterEntities<Worker>();
         public IEnumerable<Visitor> Visitors => FilterEntities<Visitor>();
 
-        public IEnumerable<EntityType> FilterEntities<EntityType>() where EntityType : Entity
+        public IEnumerable<EntityType> FilterEntities<EntityType>() where EntityType : Entity 
         {
             if (entityIdsPerType.ContainsKey(typeof(EntityType)))
             {

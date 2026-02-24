@@ -4,6 +4,7 @@ using ianco99.ToolBox.Services;
 using System;
 using System.Collections.Generic;
 using ZooArchitect.Architecture.Entities;
+using ZooArchitect.View.Feedback;
 using ZooArchitect.View.Scene;
 
 namespace ZooArchitect.View.Controller
@@ -13,15 +14,17 @@ namespace ZooArchitect.View.Controller
         protected EventBus EventBus => ServiceProvider.Instance.GetService<EventBus>();
         protected GameScene GameScene => ServiceProvider.Instance.GetService<GameScene>();
         protected EntitiesLogic EntitiesLogic => ServiceProvider.Instance.GetService<EntitiesLogic>();
+        protected FeedbackFactory FeedbackFactory => ServiceProvider.Instance.GetService<FeedbackFactory>();
         private ContextMenuView ContextMenuView => ServiceProvider.Instance.GetService<ContextMenuView>();
 
+        public virtual void OnSelect() { }
         public abstract void Tick(float deltaTime);
 
         public abstract void Dispose();
 
-        protected void Display(Dictionary<string, Action> controls)
+        protected void Display(Dictionary<string, Action> controls, string title = "")
         {
-            ContextMenuView.Show(controls);
+            ContextMenuView.Show(title, controls);
         }
         public abstract void CreateController();
 

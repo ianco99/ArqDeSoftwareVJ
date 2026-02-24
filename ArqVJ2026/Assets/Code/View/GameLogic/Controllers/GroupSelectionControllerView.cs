@@ -5,7 +5,6 @@ namespace ZooArchitect.View.Controller
 {
     internal abstract class GroupSelectionControllerView : ControllerView
     {
-
         private Point startGroupClickPoint;
         private Point finishGroupClickPoint;
 
